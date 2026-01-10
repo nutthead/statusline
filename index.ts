@@ -1,60 +1,36 @@
-import { getFileSink } from "@logtape/file";
-import { configure, getLogger } from "@logtape/logtape";
-import { homedir } from "node:os";
+import { configure } from "@logtape/logtape";
 import { z } from "zod";
+import { log, logtapeConfig } from "./src/logging";
 import { statusSchema } from "./src/statusLineSchema";
 import {
-  abbreviateModelId,
-  abbreviatePath,
-  currentBranchName,
+  currentDirStatus,
+  currentGitStatus,
+  currentModelStatus,
 } from "./src/utils";
-import { match } from "ts-pattern";
 
-await configure({
-  sinks: {
-    file: getFileSink(`${homedir()}/.local/state/statusline/app.log`),
-  },
-  loggers: [
-    {
-      category: "statusline",
-      lowestLevel: "info",
-      sinks: ["file"],
-    },
-    {
-      category: ["logtape", "meta"],
-      sinks: ["file"],
-    },
-  ],
-});
+import c from "ansi-colors";
 
-const log = getLogger(["statusline"]);
+await configure(logtapeConfig);
 
 const input = await Bun.stdin.stream().json();
-log.info(input);
+log.debug("stdin: {input}", input);
 
 const result = statusSchema.safeParse(input);
-if (!result.success) {
+
+let statusLine = null;
+if (result.success) {
+  const status = result.data;
+  const dirStatus = c.blue(currentDirStatus(status));
+  const gitStatus = c.green(await currentGitStatus());
+  const modelStatus = c.magenta(currentModelStatus(status));
+  const separator = c.bold.gray("⋮");
+
+  statusLine = `${dirStatus} ${separator} ${gitStatus} ${separator} ${modelStatus}`;
+} else {
   log.error("Failed to parse input: {error}", {
     error: JSON.stringify(z.treeifyError(result.error)),
   });
-  process.exit(1);
+  statusLine = `[]`;
 }
-
-const resultData = result.data;
-const gitBranch = await currentBranchName();
-const gitStatus = match(gitBranch)
-  .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)
-  .with({ status: "detached" }, ({ commit }) => `🪾 ${commit}`)
-  .with({ status: "not-git" }, () => "💾")
-  .with({ status: "error" }, () => "💥")
-  .exhaustive();
-
-const modelId = abbreviateModelId(resultData.model.id);
-const projectDir = abbreviatePath(resultData.workspace.project_dir);
-const currentDir = abbreviatePath(resultData.workspace.current_dir);
-const dirStatus =
-  projectDir === currentDir ? projectDir : `${projectDir}/${currentDir}`;
-
-const statusLine = `[ ${dirStatus} | ${gitStatus} | ⏣ ${modelId} ]`;
 
 console.log(statusLine);

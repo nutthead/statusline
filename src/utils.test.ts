@@ -9,14 +9,44 @@ mock.module("node:os", () => ({
 }));
 
 // Import after mocking
-import { abbreviatePath, abbreviateModelId, currentBranchName } from "./utils";
+import {
+  abbreviatePath,
+  abbreviateModelId,
+  currentBranchName,
+  currentDirStatus,
+  currentGitStatus,
+  currentModelStatus,
+} from "./utils";
+import type { Status } from "./statusLineSchema";
+
+/** Default Status fixture with sensible test values */
+const defaultStatus: Status = {
+  session_id: "test-session",
+  transcript_path: "/tmp/transcript.json",
+  cwd: "/test/cwd",
+  model: {
+    id: "claude-opus-4.5",
+    display_name: "Test Model",
+  },
+  workspace: {
+    project_dir: "/home/testuser/project",
+    current_dir: "/home/testuser/project",
+  },
+  version: "1.0.0",
+  cost: {
+    total_cost_usd: 0,
+    total_duration_ms: 0,
+    total_api_duration_ms: 0,
+    total_lines_added: 0,
+    total_lines_removed: 0,
+  },
+  context_window: null,
+};
 
 describe("abbreviatePath", () => {
   describe("home directory replacement", () => {
     test("replaces homedir with ~ at start of path", () => {
-      expect(abbreviatePath("/home/testuser/projects/myapp")).toBe(
-        "~/p/myapp"
-      );
+      expect(abbreviatePath("/home/testuser/projects/myapp")).toBe("~/p/myapp");
     });
 
     test("returns ~ for exact homedir match", () => {
@@ -50,7 +80,9 @@ describe("abbreviatePath", () => {
     });
 
     test("handles deep paths", () => {
-      expect(abbreviatePath("/a/b/c/d/e/f/g/target")).toBe("/a/b/c/d/e/f/g/target");
+      expect(abbreviatePath("/a/b/c/d/e/f/g/target")).toBe(
+        "/a/b/c/d/e/f/g/target"
+      );
     });
   });
 
@@ -225,6 +257,216 @@ describe("currentBranchName", () => {
         // Default branch is typically "master" or "main"
         expect(["master", "main"]).toContain(result.name);
       }
+    });
+  });
+});
+
+describe("currentGitStatus", () => {
+  describe("output format", () => {
+    test("returns branch emoji format in current repository", async () => {
+      // Since we're in a git repo on master branch
+      const result = await currentGitStatus();
+      expect(result).toBe("🌿 master");
+    });
+
+    test("returns a non-empty string", async () => {
+      const result = await currentGitStatus();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    test("result starts with one of the expected emojis", async () => {
+      const result = await currentGitStatus();
+      // Should start with 🌿, 🪾, 💾, or 💥
+      const validPrefixes = ["🌿", "🪾", "💾", "💥"];
+      const startsWithValidEmoji = validPrefixes.some((emoji) =>
+        result.startsWith(emoji)
+      );
+      expect(startsWithValidEmoji).toBe(true);
+    });
+  });
+});
+
+describe("currentModelStatus", () => {
+  describe("Claude models", () => {
+    test("formats opus model with icon and strips claude- prefix", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "claude-opus-4.5" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ opus-4.5");
+    });
+
+    test("formats sonnet model with icon and strips claude- prefix", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "claude-sonnet-4" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ sonnet-4");
+    });
+
+    test("formats haiku model with icon and strips claude- prefix", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "claude-haiku-3.5" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ haiku-3.5");
+    });
+  });
+
+  describe("non-Claude models", () => {
+    test("formats non-Claude model without modification", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "gpt-4-turbo" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ gpt-4-turbo");
+    });
+
+    test("keeps model name when already without claude- prefix", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "opus-4.5" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ opus-4.5");
+    });
+  });
+
+  describe("output format", () => {
+    test("always starts with Model icon", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "any-model" },
+      };
+      expect(currentModelStatus(status)).toStartWith("⏣ ");
+    });
+
+    test("returns string type", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "claude-opus-4.5" },
+      };
+      expect(typeof currentModelStatus(status)).toBe("string");
+    });
+  });
+
+  describe("edge cases", () => {
+    test("handles empty model id", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ ");
+    });
+
+    test("handles model id that is just 'claude-'", () => {
+      const status = {
+        ...defaultStatus,
+        model: { ...defaultStatus.model, id: "claude-" },
+      };
+      expect(currentModelStatus(status)).toBe("⏣ ");
+    });
+  });
+});
+
+describe("currentDirStatus", () => {
+  describe("same directory", () => {
+    test("returns single path when project and current dir match", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/project",
+          current_dir: "/home/testuser/project",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ ~/project");
+    });
+
+    test("abbreviates path segments except last", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/Code/myapp",
+          current_dir: "/home/testuser/Code/myapp",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ ~/C/myapp");
+    });
+  });
+
+  describe("different directories", () => {
+    test("returns both paths with separator when dirs differ", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/project",
+          current_dir: "/home/testuser/other",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ ~/project 📂 ~/other");
+    });
+
+    test("abbreviates both paths independently", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/Code/frontend",
+          current_dir: "/home/testuser/Code/backend",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ ~/C/frontend 📂 ~/C/backend");
+    });
+
+    test("handles deeply nested current directory", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/project",
+          current_dir: "/home/testuser/project/src/components",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ ~/project 📂 ~/p/s/components");
+    });
+  });
+
+  describe("path abbreviation", () => {
+    test("replaces home directory with ~", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/myapp",
+          current_dir: "/home/testuser/myapp",
+        },
+      };
+      expect(currentDirStatus(status)).toStartWith("🗂️ ~");
+    });
+
+    test("handles non-home paths", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/var/www/app",
+          current_dir: "/var/www/app",
+        },
+      };
+      expect(currentDirStatus(status)).toBe("🗂️ /v/w/app");
+    });
+  });
+
+  describe("output format", () => {
+    test("returns string type", () => {
+      expect(typeof currentDirStatus(defaultStatus)).toBe("string");
+    });
+
+    test("uses folder emoji as separator for different directories", () => {
+      const status = {
+        ...defaultStatus,
+        workspace: {
+          project_dir: "/home/testuser/a",
+          current_dir: "/home/testuser/b",
+        },
+      };
+      expect(currentDirStatus(status)).toContain(" 📂 ");
     });
   });
 });

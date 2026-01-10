@@ -1,5 +1,7 @@
 import { homedir } from "node:os";
 import { simpleGit, type SimpleGit } from "simple-git";
+import { match } from "ts-pattern";
+import type { Status } from "./statusLineSchema";
 
 /**
  * Abbreviates a path by reducing all segments except the last to their first character.
@@ -101,5 +103,66 @@ async function currentBranchName(cwd?: string): Promise<BranchResult> {
   }
 }
 
-export { abbreviatePath, abbreviateModelId, currentBranchName };
+/**
+ * Returns a formatted git status string with emoji indicators.
+ * Uses the current working directory to determine git state.
+ *
+ * @returns A formatted string:
+ *   - `🌿 <branch>` - On a branch (e.g., "🌿 main")
+ *   - `🪾 <hash>` - Detached HEAD with short commit hash
+ *   - `💾` - Not in a git repository
+ *   - `💥` - Error determining git status
+ */
+async function currentGitStatus() {
+  const gitBranch = await currentBranchName();
+  const gitStatus = match(gitBranch)
+    .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)
+    .with({ status: "detached" }, ({ commit }) => `🪾 ${commit}`)
+    .with({ status: "not-git" }, () => "💾")
+    .with({ status: "error" }, () => "💥")
+    .exhaustive();
+
+  return gitStatus;
+}
+
+/**
+ * Returns a formatted model status string with the Claude icon.
+ * Strips the "claude-" prefix from the model ID for brevity.
+ *
+ * @param status - The Status object containing model information
+ * @returns A formatted string like "⏣ opus-4.5" or "⏣ sonnet-4"
+ */
+function currentModelStatus(status: Status) {
+  return `⏣ ${abbreviateModelId(status.model.id)}`;
+}
+
+/**
+ * Returns a formatted directory status string showing workspace location.
+ * Both paths are abbreviated (e.g., "/home/user/projects" → "~/p").
+ *
+ * @param status - The Status object containing workspace information
+ * @returns Either the abbreviated project directory alone (when current dir matches),
+ *          or "projectDir/currentDir" format when projectDir/currentDir don't match
+ * @example currentDirStatus({...}) // "🗂️ ~/p/myapp" or "🗂️ ~/p/myapp 📂 ~/s/components"
+ */
+function currentDirStatus(status: Status) {
+  const projectDir = abbreviatePath(status.workspace.project_dir);
+  const currentDir = abbreviatePath(status.workspace.current_dir);
+  const dirStatus =
+    projectDir === currentDir
+      ? `🗂️ ${projectDir}`
+      : `🗂️ ${projectDir} 📂 ${currentDir}`;
+
+  return dirStatus;
+}
+
+export {
+  abbreviateModelId,
+  abbreviatePath,
+  currentBranchName,
+  currentDirStatus,
+  currentGitStatus,
+  currentModelStatus,
+};
+
 export type { BranchResult };
