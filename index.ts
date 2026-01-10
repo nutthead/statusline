@@ -1,25 +1,38 @@
+import { getFileSink } from "@logtape/file";
+import { configure, getLogger } from "@logtape/logtape";
+import { homedir } from "node:os";
+import { z } from "zod";
 import { statusSchema, type Status } from "./src/statusLineSchema";
 
-const input = await Bun.stdin.text();
-const json = JSON.parse(input);
+await configure({
+  sinks: {
+    file: getFileSink(`${homedir()}/.local/state/statusline/app.log`),
+  },
+  loggers: [
+    {
+      category: "statusline",
+      lowestLevel: "info",
+      sinks: ["file"],
+    },
+    {
+      category: ["logtape", "meta"],
+      sinks: ["file"],
+    },
+  ],
+});
 
-const result = statusSchema.safeParse(json);
-if (!result.success) {
-  console.error("Invalid status data: ", result.error);
+const log = getLogger(["statusline"]);
+
+let input = await Bun.stdin.stream().json();
+log.info(input);
+
+const json = statusSchema.safeParse(input);
+if (!json.success) {
+  const error = JSON.stringify(z.treeifyError(json.error));
+  log.error("Failed to parse input: {error}", { error });
   process.exit(1);
 }
 
-const status: Status = result.data;
-const model = status.model?.display_name ?? "Unknown Model";
+const status: Status = json.data;
 
-const usage = status.context_window?.current_usage;
-const inputTokens =
-  (usage?.input_tokens ?? 0) +
-  (usage?.cache_read_input_tokens ?? 0) +
-  (usage?.cache_creation_input_tokens ?? 0);
-
-const contextSize = status.context_window?.context_window_size ?? "?";
-
-const statusLine = `${model} : ${inputTokens.toLocaleString()} / ${contextSize.toLocaleString()}`;
-
-console.log(statusLine);
+console.log(`${status.model.id}`);

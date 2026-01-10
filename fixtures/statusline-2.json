@@ -1,0 +1,31 @@
+{
+  "session_id": "09f8e582-5026-4970-9530-fdff14b0dbe9",
+  "transcript_path": "/home/amadeus/.claude/projects/-home-amadeus-Code-behrangsa-statusline/09f8e582-5026-4970-9530-fdff14b0dbe9.jsonl",
+  "cwd": "/home/amadeus/Code/behrangsa/statusline",
+  "model": { "id": "claude-opus-4-5-20251101", "display_name": "Opus 4.5" },
+  "workspace": {
+    "current_dir": "/home/amadeus/Code/behrangsa/statusline",
+    "project_dir": "/home/amadeus/Code/behrangsa/statusline"
+  },
+  "version": "2.1.3",
+  "output_style": { "name": "Explanatory" },
+  "cost": {
+    "total_cost_usd": 0.057773349999999994,
+    "total_duration_ms": 122167,
+    "total_api_duration_ms": 18488,
+    "total_lines_added": 0,
+    "total_lines_removed": 0
+  },
+  "context_window": {
+    "total_input_tokens": 753,
+    "total_output_tokens": 665,
+    "context_window_size": 200000,
+    "current_usage": {
+      "input_tokens": 10,
+      "output_tokens": 3,
+      "cache_creation_input_tokens": 212,
+      "cache_read_input_tokens": 21034
+    }
+  },
+  "exceeds_200k_tokens": false
+}

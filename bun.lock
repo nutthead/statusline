@@ -5,6 +5,8 @@
     "": {
       "name": "statusline",
       "dependencies": {
+        "@logtape/file": "^1.3.6",
+        "@logtape/logtape": "^1.3.6",
         "zod": "^4.3.5",
       },
       "devDependencies": {
@@ -16,6 +18,10 @@
     },
   },
   "packages": {
+    "@logtape/file": ["@logtape/file@1.3.6", "", { "peerDependencies": { "@logtape/logtape": "^1.3.6" } }, "sha512-wYh1qb8uOj2LtoAHyzCnkjvScJsJiOSYPcrPaaa3QxLdvR6ZQHo3939jRdeqkv5oQMW/rfMImmY7ma/kgW6Ogw=="],
+
+    "@logtape/logtape": ["@logtape/logtape@1.3.6", "", {}, "sha512-OaK8eal8zcjB0GZbllXKgUC2T9h/GyNLQyQXjJkf1yum7SZKTWs9gs/t8NMS0kVVaSnA7bhU0Sjws/Iy4e0/IQ=="],
+
     "@types/bun": ["@types/bun@1.3.5", "", { "dependencies": { "bun-types": "1.3.5" } }, "sha512-RnygCqNrd3srIPEWBd5LFeUYG7plCoH2Yw9WaZGyNmdTEei+gWaHqydbaIRkIkcbXwhBT94q78QljxN0Sk838w=="],
 
     "@types/node": ["@types/node@25.0.4", "", { "dependencies": { "undici-types": "~7.16.0" } }, "sha512-9L7EOcoPf2mpvBL6GbE4z6zY9oaaP389dZ5ZZ05n2K9p3e1rEUwcXqwhXIKRMbK/uV1U8MYactPf1XH0xmtZWg=="],
