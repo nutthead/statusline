@@ -3,7 +3,12 @@ import { configure, getLogger } from "@logtape/logtape";
 import { homedir } from "node:os";
 import { z } from "zod";
 import { statusSchema } from "./src/statusLineSchema";
-import { abbreviateModelId, abbreviatePath } from "./src/utils";
+import {
+  abbreviateModelId,
+  abbreviatePath,
+  currentBranchName,
+} from "./src/utils";
+import { match } from "ts-pattern";
 
 await configure({
   sinks: {
@@ -36,6 +41,13 @@ if (!result.success) {
 }
 
 const resultData = result.data;
+const gitBranch = await currentBranchName();
+const gitStatus = match(gitBranch)
+  .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)
+  .with({ status: "detached" }, ({ commit }) => `🪾 ${commit}`)
+  .with({ status: "not-git" }, () => "💾")
+  .with({ status: "error" }, () => "💥")
+  .exhaustive();
 
 const modelId = abbreviateModelId(resultData.model.id);
 const projectDir = abbreviatePath(resultData.workspace.project_dir);
@@ -43,6 +55,6 @@ const currentDir = abbreviatePath(resultData.workspace.current_dir);
 const dirStatus =
   projectDir === currentDir ? projectDir : `${projectDir}/${currentDir}`;
 
-const statusLine = `[ ${dirStatus} | ${modelId} ]`;
+const statusLine = `[ ${dirStatus} | ${gitStatus} | ⏣ ${modelId} ]`;
 
 console.log(statusLine);

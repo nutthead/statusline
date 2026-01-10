@@ -1,4 +1,7 @@
-import { test, expect, describe, mock } from "bun:test";
+import { test, expect, describe, mock, beforeAll, afterAll } from "bun:test";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 // Mock homedir to return a consistent value for testing
 mock.module("node:os", () => ({
@@ -6,7 +9,7 @@ mock.module("node:os", () => ({
 }));
 
 // Import after mocking
-import { abbreviatePath, abbreviateModelId } from "./utils";
+import { abbreviatePath, abbreviateModelId, currentBranchName } from "./utils";
 
 describe("abbreviatePath", () => {
   describe("home directory replacement", () => {
@@ -125,6 +128,103 @@ describe("abbreviateModelId", () => {
 
     test("only removes prefix once", () => {
       expect(abbreviateModelId("claude-claude-test")).toBe("claude-test");
+    });
+  });
+});
+
+describe("currentBranchName", () => {
+  describe("valid git repository", () => {
+    test("returns branch name for current repository", async () => {
+      // This test uses the actual repo we're in
+      const result = await currentBranchName(process.cwd());
+      expect(result.status).toBe("branch");
+      if (result.status === "branch") {
+        expect(result.name).toBe("master");
+      }
+    });
+  });
+
+  describe("non-git directory", () => {
+    let tempDir: string;
+
+    beforeAll(async () => {
+      tempDir = await mkdtemp(join(tmpdir(), "git-test-"));
+    });
+
+    afterAll(async () => {
+      await rm(tempDir, { recursive: true, force: true });
+    });
+
+    test("returns not-git status for non-git directory", async () => {
+      const result = await currentBranchName(tempDir);
+      expect(result.status).toBe("not-git");
+    });
+  });
+
+  describe("detached HEAD state", () => {
+    let tempDir: string;
+
+    beforeAll(async () => {
+      tempDir = await mkdtemp(join(tmpdir(), "git-detached-"));
+      // Initialize a git repo, create a commit, then detach HEAD
+      const proc = Bun.spawn(
+        [
+          "bash",
+          "-c",
+          `
+          cd "${tempDir}" &&
+          git init &&
+          git config user.email "test@test.com" &&
+          git config user.name "Test" &&
+          echo "test" > file.txt &&
+          git add file.txt &&
+          git commit -m "initial" &&
+          git checkout --detach HEAD
+        `,
+        ],
+        { stdout: "pipe", stderr: "pipe" }
+      );
+      await proc.exited;
+    });
+
+    afterAll(async () => {
+      await rm(tempDir, { recursive: true, force: true });
+    });
+
+    test("returns detached status with commit hash", async () => {
+      const result = await currentBranchName(tempDir);
+      expect(result.status).toBe("detached");
+      if (result.status === "detached") {
+        // Commit hash should be 7 characters (short hash)
+        expect(result.commit).toMatch(/^[a-f0-9]{7}$/);
+      }
+    });
+  });
+
+  describe("fresh git repository", () => {
+    let tempDir: string;
+
+    beforeAll(async () => {
+      tempDir = await mkdtemp(join(tmpdir(), "git-fresh-"));
+      const proc = Bun.spawn(["git", "init", tempDir], {
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      await proc.exited;
+    });
+
+    afterAll(async () => {
+      await rm(tempDir, { recursive: true, force: true });
+    });
+
+    test("returns branch name for fresh repo with no commits", async () => {
+      const result = await currentBranchName(tempDir);
+      // Fresh repos have a branch but no commits - should still work
+      expect(result.status).toBe("branch");
+      if (result.status === "branch") {
+        // Default branch is typically "master" or "main"
+        expect(["master", "main"]).toContain(result.name);
+      }
     });
   });
 });
