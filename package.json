@@ -1,0 +1,19 @@
+{
+  "name": "statusline",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build:binary": "mkdir -p target && bun build --compile ./index.ts --outfile target/statusline --minify",
+    "build:script": "mkdir -p target && bun build --minify --banner='#!/usr/bin/env bun' --outfile target/statusline.ts ./index.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "zod": "^4.3.5"
+  }
+}
