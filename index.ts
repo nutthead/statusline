@@ -3,6 +3,7 @@ import { configure, getLogger } from "@logtape/logtape";
 import { homedir } from "node:os";
 import { z } from "zod";
 import { statusSchema } from "./src/statusLineSchema";
+import { abbreviateModelId, abbreviatePath } from "./src/utils";
 
 await configure({
   sinks: {
@@ -34,4 +35,14 @@ if (!result.success) {
   process.exit(1);
 }
 
-console.log(result.data.model.id);
+const resultData = result.data;
+
+const modelId = abbreviateModelId(resultData.model.id);
+const projectDir = abbreviatePath(resultData.workspace.project_dir);
+const currentDir = abbreviatePath(resultData.workspace.current_dir);
+const dirStatus =
+  projectDir === currentDir ? projectDir : `${projectDir}/${currentDir}`;
+
+const statusLine = `[ ${dirStatus} | ${modelId} ]`;
+
+console.log(statusLine);
