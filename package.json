@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build:binary": "mkdir -p target && bun build --compile ./index.ts --outfile target/statusline",
-    "build:install": "cp target/statusline ~/.claude/"
+    "install:binary": "cp target/statusline ~/.claude/"
   },
   "devDependencies": {
     "@types/bun": "latest"

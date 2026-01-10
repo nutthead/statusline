@@ -15,7 +15,7 @@ bun run build:binary
 To copy to `~/.claude`:
 
 ```bash
-bun run install
+bun run install:binary
 ```
 
 ## Configure your Claude Code's statusline
