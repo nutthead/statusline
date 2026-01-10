@@ -1,4 +1,4 @@
-# statusline
+# Claude Code Status Line
 
 To install dependencies:
 
@@ -6,10 +6,11 @@ To install dependencies:
 bun install
 ```
 
-To run:
+To build:
 
 ```bash
-bun run index.ts
+bun run build:binary
+bun run build:script
 ```
 
 This project was created using `bun init` in bun v1.3.3. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.

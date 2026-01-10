@@ -10,6 +10,7 @@ if (!result.success) {
 }
 
 const status: Status = result.data;
+const model = status.model?.display_name ?? "Unknown Model";
 
 const usage = status.context_window?.current_usage;
 const inputTokens =
@@ -19,6 +20,6 @@ const inputTokens =
 
 const contextSize = status.context_window?.context_window_size ?? "?";
 
-const statusLine = `${inputTokens.toLocaleString()} / ${contextSize.toLocaleString()}`;
+const statusLine = `${model} : ${inputTokens.toLocaleString()} / ${contextSize.toLocaleString()}`;
 
 console.log(statusLine);
