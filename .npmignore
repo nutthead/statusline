@@ -1,0 +1,79 @@
+# =============================================================================
+# .npmignore - Files excluded from npm package
+# =============================================================================
+# This file controls what gets published to npm. Unlike .gitignore (which this
+# file overrides for npm), we want to be explicit about exclusions to keep the
+# published package lean and focused on runtime essentials.
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Development & Build
+# -----------------------------------------------------------------------------
+# Build output - users compile their own or use the source directly
+target/
+
+# Lock files - consumers generate their own based on their package manager
+bun.lock
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# TypeScript config - Bun handles TS natively at runtime
+tsconfig.json
+
+# -----------------------------------------------------------------------------
+# Testing
+# -----------------------------------------------------------------------------
+# Test files - not needed for package consumers
+*.test.ts
+*.spec.ts
+__tests__/
+
+# Test fixtures and data
+fixtures/
+
+# Coverage reports
+coverage/
+*.lcov
+
+# -----------------------------------------------------------------------------
+# Claude Code / AI Assistant
+# -----------------------------------------------------------------------------
+# Claude Code local settings and instructions
+.claude/
+CLAUDE.md
+
+# -----------------------------------------------------------------------------
+# Editor & IDE
+# -----------------------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# -----------------------------------------------------------------------------
+# OS Generated
+# -----------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------------------------------------------------------
+# Misc Development Files
+# -----------------------------------------------------------------------------
+.gitignore
+.editorconfig
+.prettierrc*
+.eslintrc*
+eslint.config.*
+
+# Logs
+*.log
+logs/
+
+# Environment files
+.env*
+
+# Temporary files
+*.tgz
+*.tsbuildinfo
