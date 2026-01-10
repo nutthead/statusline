@@ -1,8 +1,16 @@
 {
-  "name": "statusline",
+  "name": "@nutthead/cc-statusline",
+  "description": "Status Line for Claude Code",
+  "version": "0.1.0",
   "module": "index.ts",
   "type": "module",
-  "private": true,
+  "private": false,
+  "license": "MIT",
+  "author": {
+    "name": "Behrang Saeedzadeh",
+    "email": "hello@behrang.org",
+    "url": "https://behrang.org"
+  },
   "scripts": {
     "build:binary": "mkdir -p target && bun build --compile ./index.ts --outfile target/statusline",
     "install": "cp target/statusline ~/.claude/",
