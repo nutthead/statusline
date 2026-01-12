@@ -156,6 +156,10 @@ function currentDirStatus(status: Status) {
   return dirStatus;
 }
 
+function currentSessionId(status: Status) {
+  return `📝 ${status.session_id}`;
+}
+
 export {
   abbreviateModelId,
   abbreviatePath,
@@ -163,6 +167,7 @@ export {
   currentDirStatus,
   currentGitStatus,
   currentModelStatus,
+  currentSessionId,
 };
 
 export type { BranchResult };
