@@ -1,7 +1,7 @@
 {
   "name": "@nutthead/cc-statusline",
   "description": "Status Line for Claude Code",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "exports": {
     ".": {
       "import": "./index.ts",
