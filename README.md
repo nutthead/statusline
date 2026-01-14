@@ -1,33 +1,22 @@
 # Claude Code Status Line
 
-To install dependencies:
+## Install
 
 ```bash
-bun install
+bunx @nutthead/cc-statusline install
 ```
 
-To build:
+Use `--overwrite` to replace an existing installation.
 
-```bash
-bun run build:binary
-```
+## Configure
 
-To copy to `~/.claude`:
-
-```bash
-bun run install:binary
-```
-
-## Configure your Claude Code's statusline
-
-Edit your `~/.claude/settings.json` file to include:
+Add to `~/.claude/settings.json`:
 
 ```json
 {
   "statusLine": {
     "type": "command",
-    "command": "/path/to/.claude/statusline",
-    "padding": 0
+    "command": "~/.claude/statusline"
   }
 }
 ```

@@ -9,6 +9,9 @@
     }
   },
   "type": "module",
+  "bin": {
+    "cc-statusline": "./src/cli.ts"
+  },
   "private": false,
   "license": "MIT",
   "author": {

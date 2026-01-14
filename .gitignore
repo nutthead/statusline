@@ -5,6 +5,7 @@ node_modules
 out
 dist
 target
+resources/plans
 *.tgz
 
 # code coverage

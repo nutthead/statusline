@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project: statusline
+
+- **Main file**: `./index.ts`
+- **Source directory**: `./src/`
+- **Build/target directory**: `./target`
+
+## `package.json` scripts
+
+- `build:binary`: `mkdir -p target && bun build --compile ./index.ts --outfile target/statusline`
+- `install:binary`: `cp target/statusline ~/.claude/`
+
 Default to using Bun instead of Node.js.
 
 - Use `bun <file>` instead of `node <file>` or `ts-node <file>`

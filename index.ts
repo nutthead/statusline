@@ -13,26 +13,30 @@ import c from "ansi-colors";
 
 await configure(logtapeConfig);
 
-const input = await Bun.stdin.stream().json();
-log.debug("stdin: {input}", input);
-
-const result = statusSchema.safeParse(input);
-
 let statusLine = null;
-if (result.success) {
-  const status = result.data;
-  const dirStatus = c.blue(currentDirStatus(status));
-  const gitStatus = c.green(await currentGitStatus());
-  const modelStatus = c.magenta(currentModelStatus(status));
-  const sessionId = c.blue(currentSessionId(status));
-  const separator = c.bold.gray("⋮");
+const input = await Bun.stdin.stream().json();
+log.debug("input: {input}", input);
 
-  statusLine = `${dirStatus} ${separator} ${gitStatus}\n${modelStatus} ${separator} ${sessionId}`;
+if (input) {
+  const result = statusSchema.safeParse(input);
+
+  if (result.success) {
+    const status = result.data;
+    const dirStatus = c.blue(currentDirStatus(status));
+    const gitStatus = c.green(await currentGitStatus());
+    const modelStatus = c.magenta(currentModelStatus(status));
+    const sessionId = c.blue(currentSessionId(status));
+    const separator = c.bold.gray("⋮");
+
+    statusLine = `${dirStatus} ${separator} ${gitStatus}\n${modelStatus} ${separator} ${sessionId}`;
+  } else {
+    log.error("Failed to parse input: {error}", {
+      error: JSON.stringify(z.treeifyError(result.error)),
+    });
+    statusLine = `[malformed status]`;
+  }
 } else {
-  log.error("Failed to parse input: {error}", {
-    error: JSON.stringify(z.treeifyError(result.error)),
-  });
-  statusLine = `[]`;
+  statusLine = `[no status]`;
 }
 
 console.log(statusLine);
