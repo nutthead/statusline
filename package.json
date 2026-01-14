@@ -10,7 +10,7 @@
   },
   "type": "module",
   "bin": {
-    "cc-statusline": "./src/cli.ts"
+    "cc-statusline": "./dist/cli.js"
   },
   "private": false,
   "license": "MIT",
@@ -34,6 +34,8 @@
   ],
   "scripts": {
     "build:binary": "mkdir -p target && bun build --compile ./index.ts --outfile target/statusline",
+    "build:cli": "bun build ./src/cli.ts --outfile ./dist/cli.js --target node",
+    "prepublishOnly": "bun run build:cli",
     "install:binary": "cp target/statusline ~/.claude/"
   },
   "devDependencies": {
