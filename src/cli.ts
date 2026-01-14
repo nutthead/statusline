@@ -1,6 +1,7 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
-import { $ } from "bun";
+import { execSync } from "node:child_process";
+import { existsSync, mkdirSync, copyFileSync, unlinkSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -8,33 +9,37 @@ const BINARY_NAME = "statusline";
 const CLAUDE_DIR = join(homedir(), ".claude");
 const TARGET_PATH = join(CLAUDE_DIR, BINARY_NAME);
 
-async function build(): Promise<void> {
+function build(): void {
   console.log("Building statusline binary...");
-  await $`mkdir -p target && bun build --compile ./index.ts --outfile target/statusline`;
+  execSync("mkdir -p target && bun build --compile ./index.ts --outfile target/statusline", {
+    stdio: "inherit",
+  });
   console.log("Build complete.");
 }
 
-async function install(overwrite: boolean): Promise<void> {
+function install(overwrite: boolean): void {
   // Build first
-  await build();
+  build();
 
-  // Ensure ~/.claude directory exists (mkdir -p is idempotent)
-  await $`mkdir -p ${CLAUDE_DIR}`;
+  // Ensure ~/.claude directory exists
+  if (!existsSync(CLAUDE_DIR)) {
+    mkdirSync(CLAUDE_DIR, { recursive: true });
+  }
 
   // Check if target file exists
-  const targetFile = Bun.file(TARGET_PATH);
-  if (await targetFile.exists()) {
+  if (existsSync(TARGET_PATH)) {
     if (!overwrite) {
       console.error(`Error: ${TARGET_PATH} already exists.`);
       console.error("Use --overwrite to replace the existing file.");
       process.exit(1);
     }
     console.log(`Overwriting existing file at ${TARGET_PATH}...`);
+    unlinkSync(TARGET_PATH); // Remove first to avoid ETXTBSY if binary is running
   }
 
   // Copy binary to destination
   const sourcePath = join(process.cwd(), "target", BINARY_NAME);
-  await $`cp ${sourcePath} ${TARGET_PATH}`;
+  copyFileSync(sourcePath, TARGET_PATH);
   console.log(`Installed statusline to ${TARGET_PATH}`);
 }
 
@@ -49,7 +54,7 @@ Options:
   --help, -h          Show this help message`);
 }
 
-async function main(): Promise<void> {
+function main(): void {
   const args = process.argv.slice(2);
   const command = args.find((arg) => !arg.startsWith("-"));
   const flags = new Set(args.filter((arg) => arg.startsWith("-")));
@@ -61,7 +66,7 @@ async function main(): Promise<void> {
 
   switch (command) {
     case "install":
-      await install(flags.has("--overwrite"));
+      install(flags.has("--overwrite"));
       break;
     default:
       console.error(`Unknown command: ${command}`);
@@ -70,7 +75,4 @@ async function main(): Promise<void> {
   }
 }
 
-main().catch((error) => {
-  console.error("Error:", error.message);
-  process.exit(1);
-});
+main();
