@@ -24,8 +24,10 @@ async function defaultTheme(input?: string) {
       const sessionId = c.blue(currentSessionId(status));
       const separator = c.bold.gray(" ⋮ ");
 
-      statusLine = [dirStatus, gitStatus].join(separator);
-      statusLine += "\n" + [modelStatus, sessionId].join(separator);
+      statusLine = [
+        [dirStatus, gitStatus],
+        [modelStatus, sessionId],
+      ].map(row => row.join(separator)).join("\n");
     } else {
       log.error("Failed to parse input: {error}", {
         error: JSON.stringify(z.treeifyError(result.error)),
