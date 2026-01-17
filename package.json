@@ -2,12 +2,6 @@
   "name": "@nutthead/cc-statusline",
   "description": "Status Line for Claude Code",
   "version": "0.1.8",
-  "exports": {
-    ".": {
-      "import": "./index.ts",
-      "types": "./index.ts"
-    }
-  },
   "type": "module",
   "bin": {
     "cc-statusline": "bin/cc-statusline.js"
