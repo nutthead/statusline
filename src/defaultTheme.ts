@@ -1,16 +1,16 @@
 import { z } from "zod";
-import { log } from "../logging";
-import { statusSchema } from "../statusLineSchema";
+import { log } from "./logging";
+import { statusSchema } from "./statusLineSchema";
 import {
   currentDirStatus,
   currentGitStatus,
   currentModelStatus,
   currentSessionId,
-} from "../utils";
+} from "./utils";
 
 import c from "ansi-colors";
 
-async function defaultTheme(input?: string) {
+async function defaultTheme(input?: string): Promise<string> {
   let statusLine = null;
 
   if (input) {
@@ -27,7 +27,9 @@ async function defaultTheme(input?: string) {
       statusLine = [
         [dirStatus, gitStatus],
         [modelStatus, sessionId],
-      ].map(row => row.join(separator)).join("\n");
+      ]
+        .map((row) => row.join(separator))
+        .join("\n");
     } else {
       log.error("Failed to parse input: {error}", {
         error: JSON.stringify(z.treeifyError(result.error)),
