@@ -25,7 +25,11 @@
       "output_tokens": 3,
       "cache_creation_input_tokens": 212,
       "cache_read_input_tokens": 21034
-    }
+    },
+    "used_percentage": 0.38,
+    "remaining_percentage": 99.62,
+    "vim": { "mode": "INSERT" },
+    "agent": { "name": "main", "type": "primary" }
   },
   "exceeds_200k_tokens": false
 }

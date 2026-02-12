@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { log } from "./logging";
-import { statusSchema } from "./statusLineSchema";
+import { log } from "../logging";
+import { statusSchema } from "../statusLineSchema";
 import {
   currentDirStatus,
   currentGitStatus,
   currentModelStatus,
   currentSessionId,
-} from "./utils";
+} from "../utils";
 
 import c from "ansi-colors";
 

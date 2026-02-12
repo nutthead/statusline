@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const statusSchema = z.object({
-  hook_event_name: z.string().optional(),
   session_id: z.string(),
   transcript_path: z.string(),
   cwd: z.string(),
@@ -14,26 +13,31 @@ export const statusSchema = z.object({
     project_dir: z.string(),
   }),
   version: z.string(),
-  output_style: z
-    .object({
-      name: z.string(),
-    })
-    .optional(),
-  cost: z.object({
-    total_cost_usd: z.number(),
-    total_duration_ms: z.number(),
-    total_api_duration_ms: z.number(),
-    total_lines_added: z.number(),
-    total_lines_removed: z.number(),
+  output_style: z.object({
+    name: z.string(),
   }),
-  context_window: z
-    .object({
-      input_tokens: z.number().optional(),
-      output_tokens: z.number().optional(),
-      cache_creation_input_tokens: z.number().optional(),
-      cache_read_input_tokens: z.number().optional(),
+  context_window: z.object({
+    total_input_tokens: z.number(),
+    total_output_tokens: z.number(),
+    context_window_size: z.number(),
+    current_usage: z
+      .object({
+        input_tokens: z.number(),
+        output_tokens: z.number(),
+        cache_creation_input_tokens: z.number(),
+        cache_read_input_tokens: z.number(),
+      })
+      .nullable(),
+    used_percentage: z.number().nullable(),
+    remaining_percentage: z.number().nullable(),
+    vim: z.object({
+      mode: z.enum(["INSERT", "NORMAL"])
+    }),
+    agent: z.object({
+      name: z.string(),
+      type: z.string()
     })
-    .nullable(),
+  }),
 });
 
 export type Status = z.infer<typeof statusSchema>;

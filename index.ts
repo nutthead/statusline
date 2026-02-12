@@ -1,23 +1,21 @@
 import meow from "meow";
 import { configure } from "@logtape/logtape";
 import { log, logtapeConfig } from "./src/logging";
-import { defaultTheme } from "./src/defaultTheme";
+import { defaultTheme } from "./src/themes/defaultTheme";
 import { loadTheme } from "./src/theme/loadTheme";
 
 await configure(logtapeConfig);
 
 const cli = meow(
   `
-	Usage
-	  $ cc-statusline
+  Usage
+    $ cc-statusline
 
-	Options
-	  --theme, -t  Use a custom theme
+  Options
+   --theme, -t  Use a custom theme
 
-	Examples
-	  $ cc-statusline --rainbow
+  Examples
     $ cc-statusline --theme ~/.config/cc-statusline/basic.js
-	  
 `,
   {
     importMeta: import.meta, // This is required

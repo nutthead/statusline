@@ -4,7 +4,9 @@ import { homedir } from "node:os";
 
 const logtapeConfig: Config<"file", string> = {
   sinks: {
-    file: getFileSink(`${homedir()}/.local/state/statusline/app.log`),
+    file: getFileSink(`${homedir()}/.local/state/statusline/app.log`, {
+      lazy: true,
+    }),
   },
   loggers: [
     {

@@ -2,7 +2,7 @@ import { test, expect, describe } from "bun:test";
 import { readdirSync } from "node:fs";
 import { defaultTheme } from "./defaultTheme";
 
-const fixturesDir = `${import.meta.dir}/../fixtures`;
+const fixturesDir = `${import.meta.dir}/../../fixtures`;
 const fixtureFiles = readdirSync(fixturesDir).filter((f) =>
   f.endsWith(".json"),
 );
