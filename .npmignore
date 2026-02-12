@@ -28,6 +28,7 @@ tsconfig.json
 *.test.ts
 *.spec.ts
 __tests__/
+test/
 
 # Test fixtures and data
 fixtures/

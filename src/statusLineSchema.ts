@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const statusSchema = z.object({
+const statusSchema = z.object({
   session_id: z.string(),
   transcript_path: z.string(),
   cwd: z.string(),
@@ -31,13 +31,15 @@ export const statusSchema = z.object({
     used_percentage: z.number().nullable(),
     remaining_percentage: z.number().nullable(),
     vim: z.object({
-      mode: z.enum(["INSERT", "NORMAL"])
+      mode: z.enum(["INSERT", "NORMAL"]),
     }),
     agent: z.object({
       name: z.string(),
-      type: z.string()
-    })
+      type: z.string(),
+    }),
   }),
 });
 
-export type Status = z.infer<typeof statusSchema>;
+type Status = z.infer<typeof statusSchema>;
+
+export { statusSchema, type Status };

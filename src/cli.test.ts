@@ -1,86 +1,86 @@
 import { describe, test, expect, mock, spyOn, beforeEach } from "bun:test";
-import { installBinary, type InstallDeps } from "./cli";
+import {
+  installBinary,
+  type FileSystem,
+  type InstallDeps,
+  type InstallOptions,
+} from "./cli";
 
 describe("installBinary", () => {
+  let mockFs: FileSystem;
   let mockDeps: InstallDeps;
+  let options: InstallOptions;
   let consoleLogSpy: ReturnType<typeof spyOn>;
-  let consoleErrorSpy: ReturnType<typeof spyOn>;
 
   beforeEach(() => {
+    mockFs = {
+      exists: mock(async () => false),
+      mkdir: mock(async () => {}),
+      copy: mock(async () => {}),
+      remove: mock(async () => {}),
+    };
+
     mockDeps = {
+      fs: mockFs,
+      build: mock(async () => {}),
+    };
+
+    options = {
+      overwrite: false,
       claudeDir: "/mock/.claude",
       targetPath: "/mock/.claude/statusline",
       sourcePath: "/mock/target/statusline",
-      doBuild: mock(() => {}),
-      existsSync: mock(() => false),
-      mkdirSync: mock(() => {}),
-      copyFileSync: mock(() => {}),
-      unlinkSync: mock(() => {}),
     };
 
     consoleLogSpy = spyOn(console, "log").mockImplementation(() => {});
-    consoleErrorSpy = spyOn(console, "error").mockImplementation(() => {});
-    spyOn(process, "exit").mockImplementation(() => {
-      throw new Error("process.exit called");
-    });
   });
 
-  test("fresh install creates directory and copies file", () => {
-    // claudeDir doesn't exist, targetPath doesn't exist
-    mockDeps.existsSync = mock((_path: string) => false);
+  test("fresh install creates directory and copies file", async () => {
+    mockFs.exists = mock(async () => false);
 
-    installBinary(false, mockDeps);
+    await installBinary(options, mockDeps);
 
-    expect(mockDeps.doBuild).toHaveBeenCalled();
-    expect(mockDeps.mkdirSync).toHaveBeenCalledWith("/mock/.claude", {
+    expect(mockDeps.build).toHaveBeenCalled();
+    expect(mockFs.mkdir).toHaveBeenCalledWith("/mock/.claude", {
       recursive: true,
     });
-    expect(mockDeps.copyFileSync).toHaveBeenCalledWith(
+    expect(mockFs.copy).toHaveBeenCalledWith(
       "/mock/target/statusline",
       "/mock/.claude/statusline",
     );
-    expect(mockDeps.unlinkSync).not.toHaveBeenCalled();
+    expect(mockFs.remove).not.toHaveBeenCalled();
   });
 
-  test("install when directory exists but file doesn't", () => {
-    // claudeDir exists, targetPath doesn't exist
-    mockDeps.existsSync = mock((path: string) => path === "/mock/.claude");
+  test("install when directory exists but file doesn't", async () => {
+    mockFs.exists = mock(async (path: string) => path === "/mock/.claude");
 
-    installBinary(false, mockDeps);
+    await installBinary(options, mockDeps);
 
-    expect(mockDeps.doBuild).toHaveBeenCalled();
-    expect(mockDeps.mkdirSync).not.toHaveBeenCalled();
-    expect(mockDeps.copyFileSync).toHaveBeenCalledWith(
+    expect(mockDeps.build).toHaveBeenCalled();
+    expect(mockFs.mkdir).not.toHaveBeenCalled();
+    expect(mockFs.copy).toHaveBeenCalledWith(
       "/mock/target/statusline",
       "/mock/.claude/statusline",
     );
   });
 
-  test("rejects overwrite when file exists and --overwrite not set", () => {
-    // Both directory and file exist
-    mockDeps.existsSync = mock(() => true);
+  test("rejects overwrite when file exists and --overwrite not set", async () => {
+    mockFs.exists = mock(async () => true);
 
-    expect(() => installBinary(false, mockDeps)).toThrow("process.exit called");
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Error: /mock/.claude/statusline already exists.",
+    await expect(installBinary(options, mockDeps)).rejects.toThrow(
+      "/mock/.claude/statusline already exists",
     );
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Use --overwrite to replace the existing file.",
-    );
-    expect(mockDeps.copyFileSync).not.toHaveBeenCalled();
+    expect(mockFs.copy).not.toHaveBeenCalled();
   });
 
-  test("overwrites existing file when --overwrite is set", () => {
-    // Both directory and file exist
-    mockDeps.existsSync = mock(() => true);
+  test("overwrites existing file when --overwrite is set", async () => {
+    mockFs.exists = mock(async () => true);
+    options.overwrite = true;
 
-    installBinary(true, mockDeps);
+    await installBinary(options, mockDeps);
 
-    expect(mockDeps.unlinkSync).toHaveBeenCalledWith(
-      "/mock/.claude/statusline",
-    );
-    expect(mockDeps.copyFileSync).toHaveBeenCalledWith(
+    expect(mockFs.remove).toHaveBeenCalledWith("/mock/.claude/statusline");
+    expect(mockFs.copy).toHaveBeenCalledWith(
       "/mock/target/statusline",
       "/mock/.claude/statusline",
     );
@@ -89,13 +89,17 @@ describe("installBinary", () => {
     );
   });
 
-  test("always calls build first", () => {
+  test("always calls build first", async () => {
     const callOrder: string[] = [];
-    mockDeps.doBuild = mock(() => callOrder.push("build"));
-    mockDeps.copyFileSync = mock(() => callOrder.push("copy"));
-    mockDeps.existsSync = mock(() => false);
+    mockDeps.build = mock(async () => {
+      callOrder.push("build");
+    });
+    mockFs.copy = mock(async () => {
+      callOrder.push("copy");
+    });
+    mockFs.exists = mock(async () => false);
 
-    installBinary(false, mockDeps);
+    await installBinary(options, mockDeps);
 
     expect(callOrder).toEqual(["build", "copy"]);
   });

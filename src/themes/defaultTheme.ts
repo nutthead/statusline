@@ -18,15 +18,15 @@ async function defaultTheme(input?: string): Promise<string> {
 
     if (result.success) {
       const status = result.data;
-      const dirStatus = c.blue(currentDirStatus(status));
-      const gitStatus = c.green(await currentGitStatus());
-      const modelStatus = c.magenta(currentModelStatus(status));
+      const currentDir = c.blue(currentDirStatus(status));
+      const git = c.green(await currentGitStatus());
+      const model = c.magenta(currentModelStatus(status));
       const sessionId = c.blue(currentSessionId(status));
       const separator = c.bold.gray(" ⋮ ");
 
       statusLine = [
-        [dirStatus, gitStatus],
-        [modelStatus, sessionId],
+        [currentDir, git],
+        [model, sessionId],
       ]
         .map((row) => row.join(separator))
         .join("\n");

@@ -1,4 +1,17 @@
-# Claude Code Status Line
+# statusline
+
+Custom status line for Claude Code.
+
+## Preview
+
+The default theme renders a two-row status line:
+
+```
+🗂️ ~/C/b/statusline ⋮ 🌿 master
+⏣ opus-4-6 ⋮ 📝 fc9bbbee-...
+```
+
+Row 1 shows the abbreviated working directory and git branch. Row 2 shows the model and session ID.
 
 ## Install
 
@@ -6,11 +19,7 @@
 bunx @nutthead/cc-statusline install
 ```
 
-Use `--overwrite` to replace an existing installation.
-
-## Configure
-
-Add to `~/.claude/settings.json`:
+Then add to `~/.claude/settings.json`:
 
 ```json
 {
@@ -21,45 +30,55 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-### Custom Theme
+Use `--overwrite` to replace an existing installation.
 
-1. Create a directory for the custom theme:
+## Custom Themes
 
-   ```bash
-   mkdir ~/.config/cc-statusline
-   ```
+Create a JS file that default-exports a theme function (e.g. `~/.config/cc-statusline/theme.js`):
 
-2. Write a custom theme (e.g. in `~/.config/cc-statusline/theme.js`)
+```js
+export default function theme(input) {
+  if (!input) return "";
 
-   ```js
-   export default function theme(input) {
-     if (input) {
-       // parse input
-       const json = JSON.parse(input);
+  const status = JSON.parse(input);
+  const dir = status.workspace.current_dir;
+  const model = status.model.display_name;
+  const ctx = status.context_window.used_percentage ?? 0;
 
-       // construct status line
-       const statusLine = "...";
+  return `${model} | ${dir} | ctx: ${Math.round(ctx)}%`;
+}
+```
 
-       // return status line
-       return statusLine;
-     } else {
-       return "";
-     }
-   }
-   ```
+Then point to it in `~/.claude/settings.json`:
 
-3. Configure Claude Code
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline --theme ~/.config/cc-statusline/theme.js"
+  }
+}
+```
 
-   ```json
-   {
-     "statusLine": {
-       "type": "command",
-       "command": "~/.claude/statusline --theme ~/.config/cc-statusline/theme.js"
-     }
-   }
-   ```
+## Available Fields
 
-## Logs
+The JSON object passed to your theme function contains these fields:
+
+| Field                            | Example                  |
+| -------------------------------- | ------------------------ |
+| `session_id`                     | `"f9abcdef-1a2b-..."`    |
+| `version`                        | `"2.1.39"`               |
+| `model.id`                       | `"claude-opus-4-6"`      |
+| `model.display_name`             | `"Claude Opus 4.6"`      |
+| `workspace.current_dir`          | `"/home/user/project"`   |
+| `workspace.project_dir`          | `"/home/user/project"`   |
+| `context_window.used_percentage` | `42.5`                   |
+| `context_window.vim.mode`        | `"INSERT"` or `"NORMAL"` |
+| `context_window.agent.name`      | `"claude-code"`          |
+
+See [`src/statusLineSchema.ts`](src/statusLineSchema.ts) for the full schema.
+
+## Troubleshooting
 
 Execution logs are stored in `~/.local/state/statusline/app.log`.
 
