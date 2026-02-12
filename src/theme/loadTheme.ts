@@ -4,32 +4,32 @@ import { homedir } from "node:os";
 type ThemeFunction = (input?: string) => Promise<string>;
 
 interface ThemeModule {
-  default: ThemeFunction;
+	default: ThemeFunction;
 }
 
 function expandTilde(path: string) {
-  if (path.startsWith("~")) {
-    return join(homedir(), path.slice(1));
-  }
+	if (path.startsWith("~")) {
+		return join(homedir(), path.slice(1));
+	}
 
-  return path;
+	return path;
 }
 
 function resolvePath(path: string) {
-  const expandedPath = expandTilde(path);
-  return resolve(expandedPath);
+	const expandedPath = expandTilde(path);
+	return resolve(expandedPath);
 }
 
 async function loadTheme(themePath: string): Promise<ThemeFunction | null> {
-  const resovedPath = resolvePath(themePath);
+	const resovedPath = resolvePath(themePath);
 
-  const module = (await import(resovedPath)) as ThemeModule;
+	const module = (await import(resovedPath)) as ThemeModule;
 
-  if (typeof module.default !== `function`) {
-    return null;
-  }
+	if (typeof module.default !== `function`) {
+		return null;
+	}
 
-  return module.default;
+	return module.default;
 }
 
 export { type ThemeModule, type ThemeFunction, loadTheme };

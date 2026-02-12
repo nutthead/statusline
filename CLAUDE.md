@@ -42,7 +42,7 @@ Default to using Bun instead of Node.js.
 - **`src/statusLineSchema.ts`** — Zod schema (`statusSchema`) defining the JSON structure Claude Code sends to the status line. The `Status` type is inferred from this schema.
 - **`src/themes/defaultTheme.ts`** — Default theme function. Parses stdin JSON via the schema, formats a two-row status line (directory + git on row 1, model + session on row 2) using `ansi-colors`.
 - **`src/theme/loadTheme.ts`** — Dynamic theme loader. Resolves a `--theme` path (supports `~`) and `import()`s it, expecting a default-exported theme function.
-- **`src/utils.ts`** — Formatting helpers: `abbreviatePath` (shortens path segments), `abbreviateModelId` (strips `claude-` prefix), `currentBranchName` (via `simple-git`), `currentGitStatus`, `currentDirStatus`, `currentModelStatus`.
+- **`src/utils.ts`** — Formatting helpers: `abbreviatePath` (shortens path segments), `abbreviateModelId` (strips `claude-` prefix), `currentBranchName` (via `simple-git`), `currentGitStatus`, `workspaceStatus`, `currentModelStatus`.
 - **`src/logging.ts`** — LogTape configuration. Logs to `~/.local/state/statusline/app.log`.
 
 ### Custom themes

@@ -7,7 +7,7 @@ import { loadTheme } from "./src/theme/loadTheme";
 await configure(logtapeConfig);
 
 const cli = meow(
-  `
+	`
   Usage
     $ cc-statusline
 
@@ -17,19 +17,20 @@ const cli = meow(
   Examples
     $ cc-statusline --theme ~/.config/cc-statusline/basic.js
 `,
-  {
-    importMeta: import.meta, // This is required
-    flags: {
-      theme: {
-        type: "string",
-        shortFlag: "t",
-        isRequired: false,
-      },
-    },
-  },
+	{
+		importMeta: import.meta, // This is required
+		flags: {
+			theme: {
+				type: "string",
+				shortFlag: "t",
+				isRequired: false,
+			},
+		},
+	},
 );
 
-const resolvedTheme = (cli.flags.theme && await loadTheme(cli.flags.theme)) || defaultTheme;
+const resolvedTheme =
+	(cli.flags.theme && (await loadTheme(cli.flags.theme))) || defaultTheme;
 
 const input = await Bun.stdin.stream().json();
 log.debug("input: {input}", input);
