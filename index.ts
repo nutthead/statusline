@@ -12,7 +12,7 @@ const cli = meow(
     $ cc-statusline
 
   Options
-   --theme, -t  Use a custom theme
+    --theme, -t  Use a custom theme
 
   Examples
     $ cc-statusline --theme ~/.config/cc-statusline/basic.js
@@ -32,6 +32,6 @@ const cli = meow(
 const resolvedTheme =
   (cli.flags.theme && (await loadTheme(cli.flags.theme))) || defaultTheme;
 
-const input = await Bun.stdin.stream().json();
-log.debug("input: {input}", input);
+const input = await Bun.stdin.stream().text();
+log.debug("input: {input}", { input });
 console.log(await resolvedTheme(input));

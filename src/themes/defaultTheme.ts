@@ -27,7 +27,7 @@ function colorizeUsageStatus(usedPercentage: number) {
 
 async function renderLine1(status: Status): Promise<string> {
   const modelId = abbreviateModelId(status.model.id);
-  const modelStatus = `🤖 ${modelId}`;
+  const modelStatus = `🤖 ${modelId} (${status.version})`;
 
   const sessionStatus = `📃 ${status.session_id}`;
 
@@ -92,7 +92,8 @@ async function renderTheme(status: Status): Promise<string> {
 async function defaultTheme(input?: string): Promise<string> {
   if (input) {
     try {
-      const status = statusSchema.parse(input);
+      const parsed = JSON.parse(input);
+      const status = statusSchema.parse(parsed);
       return renderTheme(status);
     } catch (e) {
       const error =
