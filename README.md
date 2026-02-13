@@ -2,17 +2,19 @@
 
 Themeable status line provider for Claude Code.
 
+Requires [Bun](https://bun.com).
+
 ## Preview
 
 The default theme renders a two-row status line:
 
 ```
-🤖 opus-4-5           📃 93aba123-d123-4a6b-b1b5-2f3e7d111317           🗂️ ~/a/…/statusline
-🌿 main                                                                               0.38%
+🤖 opus-4-5 (2.1.42)      📃 93aba123-d123-4a6b-b1b5-2f3e7d111317       🗂️ ~/a/…/statusline
+🌿 main                                                                                 18%
 ```
 
 - **Row 1** (left to right):
-  - 🤖 Model ID (abbreviated)
+  - 🤖 Model ID (abbreviated) and Claude Code version
   - 📃 Session ID
   - 🗂️ Project directory (compressed and telescoped)
 
