@@ -1,11 +1,11 @@
 {
-  "session_id": "fc9bbbee-466c-45b8-ad86-8f3d848823f2",
-  "transcript_path": "/home/amadeus/.claude/projects/-home-amadeus-Code-behrangsa-statusline/fc9bbbee-466c-45b8-ad86-8f3d848823f2.jsonl",
-  "cwd": "/home/amadeus/Code/behrangsa/statusline",
+  "session_id": "3694cfa9-53b4-4025-ab41-f8fa913a189b",
+  "transcript_path": "/home/testuser/.claude/projects/-home-testuser-Projects-statusline/3694cfa9-53b4-4025-ab41-f8fa913a189b.jsonl",
+  "cwd": "/home/testuser/Projects/statusline",
   "model": { "id": "claude-opus-4-5-20251101", "display_name": "Opus 4.5" },
   "workspace": {
-    "current_dir": "/home/amadeus/Code/behrangsa/statusline",
-    "project_dir": "/home/amadeus/Code/behrangsa/statusline"
+    "current_dir": "/home/testuser/Projects/statusline",
+    "project_dir": "/home/testuser/Projects/statusline"
   },
   "version": "2.1.3",
   "output_style": { "name": "Explanatory" },
