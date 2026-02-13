@@ -76,7 +76,7 @@ The JSON object passed to your theme function contains these fields:
 | `context_window.vim.mode`        | `"INSERT"` or `"NORMAL"` |
 | `context_window.agent.name`      | `"claude-code"`          |
 
-See [`src/statusLineSchema.ts`](src/statusLineSchema.ts) for the full schema.
+See [`src/schema/statusLine.ts`](src/statusLineSchema.ts) for the full schema.
 
 ## Troubleshooting
 

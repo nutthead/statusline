@@ -11,7 +11,7 @@ import {
   currentModelStatus,
   currentSessionId,
 } from "./utils";
-import type { Status } from "./statusLineSchema";
+import type { Status } from "./schema/statusLine";
 
 /** Default Status fixture with sensible test values */
 const defaultStatus: Status = {

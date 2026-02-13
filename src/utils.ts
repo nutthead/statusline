@@ -1,7 +1,7 @@
 import { homedir } from "node:os";
 import { simpleGit, type SimpleGit } from "simple-git";
 import { match } from "ts-pattern";
-import type { Status } from "./statusLineSchema";
+import type { Status } from "./schema/statusLine";
 
 /**
  * Abbreviates a path by reducing all segments except the last to their first character.

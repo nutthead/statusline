@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { log } from "../logging";
-import { statusSchema } from "../statusLineSchema";
+import { statusSchema } from "../schema/statusLine";
 import {
   workspaceStatus,
   currentGitStatus,

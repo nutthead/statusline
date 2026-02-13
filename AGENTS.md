@@ -171,7 +171,7 @@ Theme paths support `~` expansion to the user's home directory.
 
 ## Status Line Schema
 
-Claude Code sends a JSON object with the following structure (see `src/statusLineSchema.ts`):
+Claude Code sends a JSON object with the following structure (see `src/schema/statusLine.ts`):
 
 ```typescript
 {
@@ -219,6 +219,6 @@ In tests, logging is mocked to prevent file I/O. Use the `log` object from `src/
 
 ## Useful References
 
-- `src/statusLineSchema.ts` — Full schema definition
+- `src/schema/statusLine.ts` — Full schema definition
 - `fixtures/statusline-*.json` — Example status inputs from Claude Code
 - `CLAUDE.md` — Additional context for Claude Code (not packaged in npm)
