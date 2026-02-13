@@ -95,11 +95,16 @@ async function defaultTheme(input?: string): Promise<string> {
       const status = statusSchema.parse(input);
       return renderTheme(status);
     } catch (e) {
-      if (e instanceof ZodError) {
-        log.error("Failed to parse input: {error}", {
-          error: JSON.stringify(e.issues),
-        });
-      }
+      const error =
+        e instanceof ZodError
+          ? JSON.stringify(e.issues)
+          : e instanceof Error
+            ? e.message
+            : JSON.stringify(e);
+
+      log.error("Failed to parse input: {error}", {
+        error: error,
+      });
     }
   }
 
