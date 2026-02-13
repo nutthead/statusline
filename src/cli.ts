@@ -10,32 +10,6 @@ const BINARY_NAME = "statusline";
 const CLAUDE_DIR = join(homedir(), ".claude");
 const TARGET_PATH = join(CLAUDE_DIR, BINARY_NAME);
 
-const cli = meow(
-  `
-  Usage
-    $ cc-statusline <command>
-
-  Commands
-    install    Build and install statusline to ~/.claude/
-
-  Options
-    --overwrite  Overwrite existing file if it exists
-
-  Examples
-    $ cc-statusline install
-    $ cc-statusline install --overwrite
-`,
-  {
-    importMeta: import.meta,
-    flags: {
-      overwrite: {
-        type: "boolean",
-        default: false,
-      },
-    },
-  },
-);
-
 interface FileSystem {
   exists(path: string): Promise<boolean>;
   mkdir(path: string, options?: { recursive?: boolean }): Promise<void>;
@@ -54,6 +28,32 @@ interface InstallDeps {
   fs: FileSystem;
   build: () => Promise<void>;
 }
+
+const cli = meow(
+  `
+  Usage
+    $ bunx cc-statusline <command>
+
+  Commands
+    install    Build and install statusline to ~/.claude/
+
+  Options
+    --overwrite  Overwrite existing file if it exists
+
+  Examples
+    $ bunx @nutthead/cc-statusline install
+    $ bunx @nutthead/cc-statusline install --overwrite
+`,
+  {
+    importMeta: import.meta,
+    flags: {
+      overwrite: {
+        type: "boolean",
+        default: false,
+      },
+    },
+  },
+);
 
 async function fileExists(path: string): Promise<boolean> {
   try {
