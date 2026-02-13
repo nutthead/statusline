@@ -2,7 +2,7 @@
   "session_id": "3694cfa9-53b4-4025-ab41-f8fa913a189b",
   "transcript_path": "/home/testuser/.claude/projects/-home-testuser-Projects-statusline/3694cfa9-53b4-4025-ab41-f8fa913a189b.jsonl",
   "cwd": "/home/testuser/Projects/statusline",
-  "model": { "id": "claude-opus-4-5-20251101", "display_name": "Opus 4.5" },
+  "model": { "id": "claude-opus-4-6", "display_name": "Opus 4.6" },
   "workspace": {
     "current_dir": "/home/testuser/Projects/statusline",
     "project_dir": "/home/testuser/Projects/statusline"

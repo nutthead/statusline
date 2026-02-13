@@ -2,7 +2,7 @@
   "session_id": "574087c3-ce3b-4958-b735-14bdacd32f49",
   "transcript_path": "/home/testuser/.claude/projects/-home-testuser-Projects-statusline/574087c3-ce3b-4958-b735-14bdacd32f49.jsonl",
   "cwd": "/home/testuser/Projects/statusline",
-  "model": { "id": "claude-opus-4-5-20251101", "display_name": "Opus 4.5" },
+  "model": { "id": "claude-sonnet-4-5-20250929", "display_name": "Sonnet 4.5" },
   "workspace": {
     "current_dir": "/home/testuser/Projects/statusline",
     "project_dir": "/home/testuser/Projects/statusline"
