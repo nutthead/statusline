@@ -7,11 +7,18 @@ Custom status line for Claude Code.
 The default theme renders a two-row status line:
 
 ```
-🗂️ ~/C/b/statusline ⋮ 🌿 master
-⏣ opus-4-6 ⋮ 📝 fc9bbbee-...
+🤖 opus-4-5          📃 09f8e582-...             🗂️ ~/a/b/statusline
+🌿 main                                                        0.38%
 ```
 
-Row 1 shows the abbreviated working directory and git branch. Row 2 shows the model and session ID.
+- **Row 1** (left to right):
+  - 🤖 Model ID (abbreviated)
+  - 📃 Session ID (first 8 characters)
+  - 🗂️ Project directory (compressed and telescoped)
+
+- **Row 2** (left to right):
+  - 🌿 Git branch name (or 🪾 commit hash if detached, 💾 if not a repo, 💥 on error)
+  - Context window usage percentage
 
 ## Install
 
