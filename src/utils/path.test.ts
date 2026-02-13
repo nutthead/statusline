@@ -1,5 +1,5 @@
 import { test, expect, describe } from "bun:test";
-import { tildify, telescope, HORIZONTAL_ELLIPSIS } from "./path";
+import { compress, tildify, telescope, HORIZONTAL_ELLIPSIS } from "./path";
 
 describe("tildify", () => {
   test("replaces home directory with ~", () => {
@@ -82,6 +82,44 @@ describe("telescope", () => {
 
   test("handles deeply nested paths under home", () => {
     expect(telescope("/home/testuser/a/b/c/d/e")).toBe("~/…/e");
+  });
+});
+
+describe("compress", () => {
+  test("compresses absolute path with multiple segments", () => {
+    expect(compress("/home/username/foo/bar/baz")).toBe("/h/u/f/b/baz");
+  });
+
+  test("compresses shorter absolute path", () => {
+    expect(compress("/foo/bar/baz")).toBe("/f/b/baz");
+  });
+
+  test("compresses path with tilde", () => {
+    expect(compress("~/projects/myapp")).toBe("~/p/myapp");
+  });
+
+  test("compresses relative path", () => {
+    expect(compress("a/b/c/d")).toBe("a/b/c/d");
+  });
+
+  test("returns single segment unchanged", () => {
+    expect(compress("foo")).toBe("foo");
+  });
+
+  test("returns two segment path with first compressed", () => {
+    expect(compress("foo/bar")).toBe("f/bar");
+  });
+
+  test("returns empty string unchanged", () => {
+    expect(compress("")).toBe("");
+  });
+
+  test("returns root path unchanged", () => {
+    expect(compress("/")).toBe("/");
+  });
+
+  test("handles path with two segments from root", () => {
+    expect(compress("/foo")).toBe("/foo");
   });
 });
 

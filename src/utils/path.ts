@@ -3,6 +3,37 @@ import { homedir } from "node:os";
 const HORIZONTAL_ELLIPSIS = "\u2026";
 
 /**
+ * Compresses a path by converting all segments except the last to a single character.
+ *
+ * @param path - The path to compress
+ * @returns The compressed path
+ *
+ * @example compress("/home/username/foo/bar/baz") // "/h/u/f/b/baz"
+ * @example compress("/foo/bar/baz")               // "/f/b/baz"
+ * @example compress("~/projects/myapp")           // "~/p/myapp"
+ * @example compress("a/b/c/d")                    // "a/b/c/d"
+ */
+function compress(path: string): string {
+  const segments = path.split("/");
+
+  if (segments.length <= 1) {
+    return path;
+  }
+
+  const compressed = segments.map((segment, index) => {
+    // Keep last segment full, compress others to first char
+    if (index === segments.length - 1) return segment;
+
+    // For empty segments (absolute path root), keep empty
+    if (segment === "") return segment;
+
+    return segment[0];
+  });
+
+  return compressed.join("/");
+}
+
+/**
  * Converts a path starting with the home directory to use `~`.
  *
  * @param path - The path to convert
@@ -61,4 +92,4 @@ function telescope(path: string): string {
   return `${first}/${HORIZONTAL_ELLIPSIS}/${last}`;
 }
 
-export { tildify, telescope, HORIZONTAL_ELLIPSIS };
+export { compress, tildify, telescope, HORIZONTAL_ELLIPSIS };
