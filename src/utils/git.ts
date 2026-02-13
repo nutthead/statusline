@@ -1,4 +1,4 @@
-import { simpleGit, type SimpleGit } from "simple-git";
+import { type SimpleGit, simpleGit } from "simple-git";
 import { match } from "ts-pattern";
 
 /**

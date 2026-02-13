@@ -1,16 +1,31 @@
+import c from "ansi-colors";
+import terminalSize from "terminal-size";
+import { match } from "ts-pattern";
 import { ZodError } from "zod";
 import { log } from "../logging";
-import { statusSchema, type Status } from "../schema/statusLine";
+import { type Status, statusSchema } from "../schema/statusLine";
+import { currentBranchName } from "../utils/git";
 import { abbreviateModelId } from "../utils/model";
 import { compress, telescope } from "../utils/path";
 import { getDisplayWidth } from "../utils/term";
-import terminalSize from 'terminal-size';
-import { currentBranchName } from "../utils/git";
-import { match } from "ts-pattern";
 
 const HORIZONTAL_PADDING = 4;
 
-async function renderLine1(status: Status) : Promise<string> {
+function colorizeUsageStatus(usedPercentage: number) {
+  if (usedPercentage === 0) {
+    return "";
+  } else if (usedPercentage <= 50) {
+    return c.green(`${usedPercentage}%`);
+  } else if (usedPercentage <= 75) {
+    return c.blue(`${usedPercentage}%`);
+  } else if (usedPercentage <= 87.5) {
+    return c.yellow(`${usedPercentage}%`);
+  } else {
+    return c.red(`${usedPercentage}%`);
+  }
+}
+
+async function renderLine1(status: Status): Promise<string> {
   const modelId = abbreviateModelId(status.model.id);
   const modelStatus = `🤖 ${modelId}`;
 
@@ -28,28 +43,34 @@ async function renderLine1(status: Status) : Promise<string> {
   const leftGap = Math.floor(remainingSpace / 2);
   const rightGap = Math.ceil(remainingSpace / 2);
 
-  return modelStatus + " ".repeat(leftGap) + sessionStatus + " ".repeat(rightGap) + projectStatus;
+  return (
+    modelStatus +
+    " ".repeat(leftGap) +
+    sessionStatus +
+    " ".repeat(rightGap) +
+    projectStatus
+  );
 }
 
-async function renderLine2(status: Status) : Promise<string> {
+async function renderLine2(status: Status): Promise<string> {
   const branch = await currentBranchName();
   const branchStatus = match(branch)
-    .with({status: "none"}, () => {
+    .with({ status: "none" }, () => {
       return `💾`;
     })
-    .with({status: "branch"}, ({name}) => {
+    .with({ status: "branch" }, ({ name }) => {
       return `🌿 ${name}`;
     })
-    .with({status: "detached"}, ({commit}) => {
+    .with({ status: "detached" }, ({ commit }) => {
       return `🪾 ${commit}`;
     })
-    .with({status: "error"}, () => {
+    .with({ status: "error" }, () => {
       return `💥`;
     })
     .exhaustive();
 
   const usedPercentage = status.context_window.used_percentage ?? 0;
-  const usageStatus = usedPercentage === 0 ? '' : `${usedPercentage}%`
+  const usageStatus = usedPercentage === 0 ? "" : `${usedPercentage}%`;
 
   const statusWidth = terminalSize().columns - HORIZONTAL_PADDING;
   const branchWidth = getDisplayWidth(branchStatus);
@@ -57,7 +78,9 @@ async function renderLine2(status: Status) : Promise<string> {
 
   const gap = statusWidth - branchWidth - usageWidth;
 
-  return branchStatus + " ".repeat(gap - 1) + usageStatus;
+  return (
+    branchStatus + " ".repeat(gap - 1) + colorizeUsageStatus(usedPercentage)
+  );
 }
 
 async function renderTheme(status: Status): Promise<string> {

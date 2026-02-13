@@ -1,5 +1,5 @@
-import { join, resolve } from "node:path";
 import { homedir } from "node:os";
+import { join, resolve } from "node:path";
 
 type ThemeFunction = (input?: string) => Promise<string>;
 

@@ -1,21 +1,15 @@
 set dotenv-load := false
 
+# Check, format, lint, and organize imports with Biome
+check:
+    bun biome check --write --assist-enabled=true
+
 # Build the standalone Bun binary into target/statusline
-build-binary:
+build: check
     bun run build:binary
 
 # Build then install the binary to ~/.claude/
-install-binary: build-binary
+install: build
     bun run install:binary
 
-# Format code with Biome
-biome-format:
-    bun run biome:format
-
-# Lint and auto-fix with Biome
-biome-lint:
-    bun run biome:lint
-
-# Format, lint, then build and install
-build: biome-format biome-lint install-binary
 

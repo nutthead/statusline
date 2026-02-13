@@ -1,8 +1,8 @@
-import meow from "meow";
 import { configure } from "@logtape/logtape";
+import meow from "meow";
 import { log, logtapeConfig } from "./src/logging";
-import { defaultTheme } from "./src/themes/defaultTheme";
 import { loadTheme } from "./src/theme/loadTheme";
+import { defaultTheme } from "./src/themes/defaultTheme";
 
 await configure(logtapeConfig);
 

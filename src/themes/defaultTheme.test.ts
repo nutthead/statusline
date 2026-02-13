@@ -1,4 +1,4 @@
-import { test, expect, describe } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
 import { defaultTheme } from "./defaultTheme";
 
@@ -160,5 +160,3 @@ describe("defaultTheme", () => {
     });
   });
 });
-
-

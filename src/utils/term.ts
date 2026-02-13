@@ -1,3 +1,5 @@
+const EMOJI_REGEX = /\p{Extended_Pictographic}/gu;
+
 /**
  * Calculates the display width of a string, accounting for emojis
  * which occupy 2 character columns in terminal displays.
@@ -6,14 +8,13 @@
  * @returns The display width in columns
  */
 function getDisplayWidth(str: string): number {
-  // Remove ANSI codes for width calculation
-  const cleanStr = str.replace(/\u001b\[[0-9;]*m/g, "");
-  // Count regular characters
-  const charCount = Array.from(cleanStr).length;
-  // Count emojis (each emoji counts as 2 characters)
-  const emojiRegex = /\p{Extended_Pictographic}/gu;
-  const emojiCount = (cleanStr.match(emojiRegex) || []).length;
-  // Total width = characters + extra count for emojis (since each emoji is 2 wide)
+  // 1. Count regular characters
+  const charCount = Array.from(str).length;
+
+  // 2. Count emojis (each emoji counts as 2 characters)
+  const emojiCount = (str.match(EMOJI_REGEX) || []).length;
+
+  // 3. Total width = characters + extra count for emojis (since each emoji is 2 wide)
   return charCount + emojiCount;
 }
 

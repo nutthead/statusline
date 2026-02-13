@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
-import meow from "meow";
 import { spawnSync } from "node:child_process";
-import { access, mkdir, copyFile, unlink } from "node:fs/promises";
+import { access, copyFile, mkdir, unlink } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
+import meow from "meow";
 
 const BINARY_NAME = "statusline";
 const CLAUDE_DIR = join(homedir(), ".claude");

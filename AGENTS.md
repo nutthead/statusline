@@ -146,20 +146,14 @@ bun run prepublishOnly
 ### Just Recipes (justfile)
 
 ```bash
-# Build the standalone Bun binary
-just build-binary
+# Check, format, lint, and organize imports with Biome
+just check
 
-# Build then install the binary to ~/.claude/
-just install-binary
-
-# Format code
-just biome-format
-
-# Lint code
-just biome-lint
-
-# Full pipeline: format, lint, build, install
+# Build the standalone Bun binary (runs check first)
 just build
+
+# Build then install the binary to ~/.claude/ (runs check and build first)
+just install
 ```
 
 ## Testing

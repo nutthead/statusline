@@ -1,5 +1,5 @@
-import { test, expect, describe } from "bun:test";
-import { compress, tildify, telescope, HORIZONTAL_ELLIPSIS } from "./path";
+import { describe, expect, test } from "bun:test";
+import { compress, HORIZONTAL_ELLIPSIS, telescope, tildify } from "./path";
 
 describe("tildify", () => {
   test("replaces home directory with ~", () => {

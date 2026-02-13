@@ -1,6 +1,6 @@
-import { test, expect, describe } from "bun:test";
-import { statusSchema } from "./statusLine";
+import { describe, expect, test } from "bun:test";
 import { readdirSync } from "node:fs";
+import { statusSchema } from "./statusLine";
 
 const fixturesDir = `${import.meta.dir}/../../fixtures`;
 const fixtureFiles = readdirSync(fixturesDir).filter((f) =>

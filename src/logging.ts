@@ -1,6 +1,6 @@
-import { getFileSink } from "@logtape/file";
-import { getLogger, type Config } from "@logtape/logtape";
 import { homedir } from "node:os";
+import { getFileSink } from "@logtape/file";
+import { type Config, getLogger } from "@logtape/logtape";
 
 const logtapeConfig: Config<"file", string> = {
   sinks: {

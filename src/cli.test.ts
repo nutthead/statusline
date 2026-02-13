@@ -1,9 +1,9 @@
-import { describe, test, expect, mock, spyOn, beforeEach } from "bun:test";
+import { beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
 import {
-  installBinary,
   type FileSystem,
   type InstallDeps,
   type InstallOptions,
+  installBinary,
 } from "./cli";
 
 describe("installBinary", () => {
