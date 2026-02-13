@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { log } from "../logging";
-import { statusSchema } from "../schema/statusLine";
+import { statusSchema, type Status } from "../schema/statusLine";
 import {
   workspaceStatus,
   currentGitStatus,
@@ -9,6 +9,20 @@ import {
 } from "../utils";
 
 import c from "ansi-colors";
+import { telescope } from "../utils/path";
+
+function makeDirStatus(status: Status) {
+  const workspace = workspaceStatus(status);
+  const projectDir = telescope(workspace.projectDir);
+  const currentDir = telescope(workspace.currentDir);
+
+  const dirStatus =
+    projectDir === currentDir
+      ? c.blue(`🗂️ ${projectDir}`)
+      : c.blue(`🗂️ ${projectDir} 📂 ${currentDir}`);
+
+  return dirStatus;
+}
 
 async function defaultTheme(input?: string): Promise<string> {
   let statusLine = null;
@@ -18,11 +32,7 @@ async function defaultTheme(input?: string): Promise<string> {
 
     if (result.success) {
       const status = result.data;
-      const { projectDir, currentDir } = workspaceStatus(status);
-      const dirStatus =
-        projectDir === currentDir
-          ? c.blue(`🗂️ ${projectDir}`)
-          : c.blue(`🗂️ ${projectDir} 📂 ${currentDir}`);
+      const dirStatus = makeDirStatus(status);
       const git = c.green(await currentGitStatus());
       const model = c.magenta(currentModelStatus(status));
       const sessionId = c.blue(currentSessionId(status, { decorate: true }));
