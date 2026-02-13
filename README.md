@@ -7,13 +7,13 @@ Themeable status line provider for Claude Code.
 The default theme renders a two-row status line:
 
 ```
-🤖 opus-4-5          📃 09f8e582-...             🗂️ ~/a/b/statusline
-🌿 main                                                        0.38%
+🤖 opus-4-5           📃 93aba123-d123-4a6b-b1b5-2f3e7d111317           🗂️ ~/a/…/statusline
+🌿 main                                                                               0.38%
 ```
 
 - **Row 1** (left to right):
   - 🤖 Model ID (abbreviated)
-  - 📃 Session ID (first 8 characters)
+  - 📃 Session ID
   - 🗂️ Project directory (compressed and telescoped)
 
 - **Row 2** (left to right):
