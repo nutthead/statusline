@@ -93,7 +93,7 @@ function abbreviateModelId(model: string, options?: { tail?: number }): string {
  * - `error`: Failed to get branch info (not a git repo, etc.)
  */
 type BranchResult =
-  | { status: "not-git" }
+  | { status: "none" }
   | { status: "branch"; name: string }
   | { status: "detached"; commit: string }
   | { status: "error"; message: string };
@@ -111,7 +111,7 @@ async function currentBranchName(cwd?: string): Promise<BranchResult> {
     // Check if we're in a git repository first
     const isRepo = await git.checkIsRepo();
     if (!isRepo) {
-      return { status: "not-git" };
+      return { status: "none" };
     }
 
     const branchSummary = await git.branch();
@@ -163,7 +163,7 @@ async function currentGitStatus() {
   const gitStatus = match(gitBranch)
     .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)
     .with({ status: "detached" }, ({ commit }) => `🪾 ${commit}`)
-    .with({ status: "not-git" }, () => "💾")
+    .with({ status: "none" }, () => "💾")
     .with({ status: "error" }, () => "💥")
     .exhaustive();
 

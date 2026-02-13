@@ -15,6 +15,7 @@ describe("defaultTheme", () => {
 
       expect(typeof result).toBe("string");
       expect(result.length).toBeGreaterThan(0);
+
       // Should not be empty
       expect(result).not.toBe("");
     });
@@ -27,10 +28,13 @@ describe("defaultTheme", () => {
 
       // Should contain directory icon
       expect(result).toContain("🗂️");
+
       // Should contain model icon
       expect(result).toContain("⏣");
+
       // Should contain session icon
       expect(result).toContain("📝");
+
       // Should be multi-line (two status lines)
       expect(result).toContain("\n");
     });
@@ -52,6 +56,7 @@ describe("defaultTheme", () => {
         session_id: "test",
         // Missing other required fields
       };
+
       const result = await defaultTheme(JSON.stringify(partialStatus));
       expect(result).toBe("");
     });
@@ -84,9 +89,11 @@ describe("defaultTheme", () => {
 
       const lines = result.split("\n");
       const firstLine = lines.at(0) ?? "";
+
       // First line should have directory icon
       expect(firstLine).toContain("🗂️");
-      // First line should have git emoji (branch, detached, not-git, or error)
+
+      // First line should have git emoji (branch, detached, none, or error)
       const gitEmojis = ["🌿", "🪾", "💾", "💥"];
       const hasGitEmoji = gitEmojis.some((emoji) => firstLine.includes(emoji));
       expect(hasGitEmoji).toBe(true);
@@ -97,8 +104,10 @@ describe("defaultTheme", () => {
       const result = await defaultTheme(fixture);
 
       const [, secondLine] = result.split("\n");
+
       // Second line should have model icon
       expect(secondLine).toContain("⏣");
+
       // Second line should have session icon
       expect(secondLine).toContain("📝");
     });

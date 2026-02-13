@@ -244,9 +244,9 @@ describe("currentBranchName", () => {
       await rm(tempDir, { recursive: true, force: true });
     });
 
-    test("returns not-git status for non-git directory", async () => {
+    test("returns none status for non-git directory", async () => {
       const result = await currentBranchName(tempDir);
-      expect(result.status).toBe("not-git");
+      expect(result.status).toBe("none");
     });
   });
 
