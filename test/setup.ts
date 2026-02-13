@@ -1,10 +1,10 @@
 import { mock } from "bun:test";
 
 mock.module("@logtape/file", () => ({
-	getFileSink: () => () => {},
+  getFileSink: () => () => {},
 }));
 
 mock.module("node:os", () => ({
-	...require("node:os"),
-	homedir: () => "/home/testuser",
+  ...require("node:os"),
+  homedir: () => "/home/testuser",
 }));

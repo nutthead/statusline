@@ -3,22 +3,22 @@ import { getLogger, type Config } from "@logtape/logtape";
 import { homedir } from "node:os";
 
 const logtapeConfig: Config<"file", string> = {
-	sinks: {
-		file: getFileSink(`${homedir()}/.local/state/statusline/app.log`, {
-			lazy: true,
-		}),
-	},
-	loggers: [
-		{
-			category: "statusline",
-			lowestLevel: "debug",
-			sinks: ["file"],
-		},
-		{
-			category: ["logtape", "meta"],
-			sinks: ["file"],
-		},
-	],
+  sinks: {
+    file: getFileSink(`${homedir()}/.local/state/statusline/app.log`, {
+      lazy: true,
+    }),
+  },
+  loggers: [
+    {
+      category: "statusline",
+      lowestLevel: "debug",
+      sinks: ["file"],
+    },
+    {
+      category: ["logtape", "meta"],
+      sinks: ["file"],
+    },
+  ],
 };
 
 const log = getLogger(["statusline"]);
