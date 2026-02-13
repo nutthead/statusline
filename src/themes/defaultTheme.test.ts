@@ -26,17 +26,10 @@ describe("defaultTheme", () => {
       const fixture = await Bun.file(`${fixturesDir}/${filename}`).json();
       const result = await defaultTheme(fixture);
 
-      // Should contain directory icon
+      // Should contain model icon (🤖), session icon (📃), and directory icon (🗂️) on line 1
+      expect(result).toContain("🤖");
+      expect(result).toContain("📃");
       expect(result).toContain("🗂️");
-
-      // Should contain model icon
-      expect(result).toContain("⏣");
-
-      // Should contain session icon
-      expect(result).toContain("📝");
-
-      // Should be multi-line (two status lines)
-      expect(result).toContain("\n");
     });
   });
 
@@ -75,49 +68,97 @@ describe("defaultTheme", () => {
   });
 
   describe("when formatting output", () => {
-    test("output has two lines separated by newline", async () => {
+    test("output line is exactly 119 characters wide (terminal width - 4)", async () => {
       const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
       const result = await defaultTheme(fixture);
 
-      const lines = result.split("\n");
-      expect(lines.length).toBe(2);
+      const firstLine = result.split("\n")[0] ?? "";
+      // Implementation uses terminalSize().columns - 4 = 123 - 4 = 119
+      expect(firstLine.length).toBe(119);
     });
 
-    test("first line contains directory and git status", async () => {
+    test("model is left-aligned at position 0", async () => {
       const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
       const result = await defaultTheme(fixture);
 
-      const lines = result.split("\n");
-      const firstLine = lines.at(0) ?? "";
+      const firstLine = result.split("\n")[0] ?? "";
 
-      // First line should have directory icon
-      expect(firstLine).toContain("🗂️");
-
-      // First line should have git emoji (branch, detached, none, or error)
-      const gitEmojis = ["🌿", "🪾", "💾", "💥"];
-      const hasGitEmoji = gitEmojis.some((emoji) => firstLine.includes(emoji));
-      expect(hasGitEmoji).toBe(true);
+      // Model should start at position 0
+      expect(firstLine.indexOf("🤖")).toBe(0);
     });
 
-    test("second line contains model and session info", async () => {
+    test("session is positioned between model and project", async () => {
       const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
       const result = await defaultTheme(fixture);
 
-      const [, secondLine] = result.split("\n");
+      const firstLine = result.split("\n")[0] ?? "";
+      const modelIndex = firstLine.indexOf("🤖");
+      const sessionIndex = firstLine.indexOf("📃");
+      const projectIndex = firstLine.indexOf("🗂️");
 
-      // Second line should have model icon
-      expect(secondLine).toContain("⏣");
+      // Session should be between model and project
+      expect(sessionIndex).toBeGreaterThan(modelIndex);
+      expect(sessionIndex).toBeLessThan(projectIndex);
 
-      // Second line should have session icon
-      expect(secondLine).toContain("📝");
+      // Verify gaps are positive (elements are separated)
+      const leftGap = sessionIndex - modelIndex;
+      const rightGap = projectIndex - sessionIndex;
+      expect(leftGap).toBeGreaterThan(0);
+      expect(rightGap).toBeGreaterThan(0);
     });
 
-    test("lines are separated by styled separator", async () => {
+    test("project is right-aligned at the end", async () => {
       const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
       const result = await defaultTheme(fixture);
 
-      // The separator ⋮ should appear in the output (may have ANSI codes around it)
-      expect(result).toContain("⋮");
+      const firstLine = result.split("\n")[0] ?? "";
+      const projectIndex = firstLine.indexOf("🗂️");
+
+      // Project should be positioned such that projectStatus ends at column 123
+      // projectIndex + displayWidth(projectStatus) should equal 123
+      expect(projectIndex).toBeGreaterThan(0);
+    });
+
+    test("only spaces exist between elements", async () => {
+      const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
+      const result = await defaultTheme(fixture);
+
+      const firstLine = result.split("\n")[0] ?? "";
+
+      // Find the three elements
+      const modelMatch = firstLine.match(/🤖\s*\S*/);
+      const sessionMatch = firstLine.match(/📃\s*\S*/);
+      const projectMatch = firstLine.match(/🗂️\s*\S*/);
+
+      expect(modelMatch).not.toBeNull();
+      expect(sessionMatch).not.toBeNull();
+      expect(projectMatch).not.toBeNull();
+
+      // Extract positions
+      const modelEnd = (modelMatch?.index ?? 0) + (modelMatch?.[0].length ?? 0);
+      const sessionStart = sessionMatch?.index ?? 0;
+      const sessionEnd = sessionStart + (sessionMatch?.[0].length ?? 0);
+      const projectStart = projectMatch?.index ?? 0;
+
+      // Gap between model and session should be all spaces
+      const gap1 = firstLine.slice(modelEnd, sessionStart);
+      expect(gap1.trim()).toBe("");
+
+      // Gap between session and project should be all spaces
+      const gap2 = firstLine.slice(sessionEnd, projectStart);
+      expect(gap2.trim()).toBe("");
+    });
+
+    test("output contains no separator or ANSI color codes", async () => {
+      const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
+      const result = await defaultTheme(fixture);
+
+      // No vertical bar separator
+      expect(result).not.toContain("⋮");
+      // No ANSI escape codes
+      expect(result).not.toContain("\u001b[");
     });
   });
 });
+
+

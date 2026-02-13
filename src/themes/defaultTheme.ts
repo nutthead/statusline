@@ -1,41 +1,69 @@
 import { ZodError } from "zod";
 import { log } from "../logging";
 import { statusSchema, type Status } from "../schema/statusLine";
-import {
-  workspaceStatus,
-  currentModelStatus,
-  currentSessionId,
-} from "../utils";
-import { currentGitStatus } from "../utils/git";
+import { abbreviateModelId } from "../utils/model";
+import { compress, telescope } from "../utils/path";
+import { getDisplayWidth } from "../utils/term";
+import terminalSize from 'terminal-size';
+import { currentBranchName } from "../utils/git";
+import { match } from "ts-pattern";
 
-import c from "ansi-colors";
-import { telescope } from "../utils/path";
+const HORIZONTAL_PADDING = 4;
 
-function makeDirStatus(status: Status) {
-  const workspace = workspaceStatus(status);
-  const projectDir = telescope(workspace.projectDir);
-  const currentDir = telescope(workspace.currentDir);
+async function renderLine1(status: Status) : Promise<string> {
+  const modelId = abbreviateModelId(status.model.id);
+  const modelStatus = `🤖 ${modelId}`;
 
-  const dirStatus =
-    projectDir === currentDir
-      ? c.blue(`🗂️ ${projectDir}`)
-      : c.blue(`🗂️ ${projectDir} 📂 ${currentDir}`);
+  const sessionStatus = `📃 ${status.session_id}`;
 
-  return dirStatus;
+  const projectDir = telescope(compress(status.workspace.project_dir));
+  const projectStatus = `🗂️ ${projectDir}`;
+
+  const statusWidth = terminalSize().columns - HORIZONTAL_PADDING;
+  const modelWidth = getDisplayWidth(modelStatus);
+  const sessionWidth = getDisplayWidth(sessionStatus);
+  const projectWidth = getDisplayWidth(projectStatus);
+
+  const remainingSpace = statusWidth - modelWidth - sessionWidth - projectWidth;
+  const leftGap = Math.floor(remainingSpace / 2);
+  const rightGap = Math.ceil(remainingSpace / 2);
+
+  return modelStatus + " ".repeat(leftGap) + sessionStatus + " ".repeat(rightGap) + projectStatus;
+}
+
+async function renderLine2(status: Status) : Promise<string> {
+  const branch = await currentBranchName();
+  const branchStatus = match(branch)
+    .with({status: "none"}, () => {
+      return `💾`;
+    })
+    .with({status: "branch"}, ({name}) => {
+      return `🌿 ${name}`;
+    })
+    .with({status: "detached"}, ({commit}) => {
+      return `🪾 ${commit}`;
+    })
+    .with({status: "error"}, () => {
+      return `💥`;
+    })
+    .exhaustive();
+
+  const usedPercentage = status.context_window.used_percentage ?? 0;
+  const usageStatus = usedPercentage === 0 ? '' : `${usedPercentage}%`
+
+  const statusWidth = terminalSize().columns - HORIZONTAL_PADDING;
+  const branchWidth = getDisplayWidth(branchStatus);
+  const usageWidth = getDisplayWidth(usageStatus);
+
+  const gap = statusWidth - branchWidth - usageWidth;
+
+  return branchStatus + " ".repeat(gap - 1) + usageStatus;
 }
 
 async function renderTheme(status: Status): Promise<string> {
-  const dirStatus = makeDirStatus(status);
-  const git = c.green(await currentGitStatus());
-  const model = c.magenta(currentModelStatus(status));
-  const sessionId = c.blue(currentSessionId(status, { decorate: true }));
-  const separator = c.bold.gray(" ⋮ ");
-  const statusLine = [
-    [dirStatus, git],
-    [model, sessionId],
-  ];
-
-  return statusLine.map((row) => row.join(separator)).join("\n");
+  const line1 = await renderLine1(status);
+  const line2 = await renderLine2(status);
+  return [line1, line2].filter(Boolean).join("\n");
 }
 
 async function defaultTheme(input?: string): Promise<string> {

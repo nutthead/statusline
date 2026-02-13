@@ -32,11 +32,11 @@ const statusSchema = z.object({
     remaining_percentage: z.number().nullable(),
     vim: z.object({
       mode: z.enum(["INSERT", "NORMAL"]),
-    }),
+    }).optional(),
     agent: z.object({
       name: z.string(),
       type: z.string(),
-    }),
+    }).optional(),
   }),
 });
 
