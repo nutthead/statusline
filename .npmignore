@@ -21,6 +21,9 @@ yarn.lock
 # TypeScript config - Bun handles TS natively at runtime
 tsconfig.json
 
+# Just
+justfile
+
 # -----------------------------------------------------------------------------
 # Testing
 # -----------------------------------------------------------------------------
@@ -43,6 +46,7 @@ coverage/
 # Claude Code local settings and instructions
 .claude/
 CLAUDE.md
+AGENTS.md
 
 # -----------------------------------------------------------------------------
 # Editor & IDE
