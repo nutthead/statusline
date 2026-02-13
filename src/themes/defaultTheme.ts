@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { ZodError } from "zod";
 import { log } from "../logging";
 import { statusSchema, type Status } from "../schema/statusLine";
 import {
@@ -24,37 +24,35 @@ function makeDirStatus(status: Status) {
   return dirStatus;
 }
 
+async function renderTheme(status: Status): Promise<string> {
+  const dirStatus = makeDirStatus(status);
+  const git = c.green(await currentGitStatus());
+  const model = c.magenta(currentModelStatus(status));
+  const sessionId = c.blue(currentSessionId(status, { decorate: true }));
+  const separator = c.bold.gray(" ⋮ ");
+  const statusLine = [
+    [dirStatus, git],
+    [model, sessionId],
+  ];
+
+  return statusLine.map((row) => row.join(separator)).join("\n");
+}
+
 async function defaultTheme(input?: string): Promise<string> {
-  let statusLine = null;
-
   if (input) {
-    const result = statusSchema.safeParse(input);
-
-    if (result.success) {
-      const status = result.data;
-      const dirStatus = makeDirStatus(status);
-      const git = c.green(await currentGitStatus());
-      const model = c.magenta(currentModelStatus(status));
-      const sessionId = c.blue(currentSessionId(status, { decorate: true }));
-      const separator = c.bold.gray(" ⋮ ");
-
-      statusLine = [
-        [dirStatus, git],
-        [model, sessionId],
-      ]
-        .map((row) => row.join(separator))
-        .join("\n");
-    } else {
-      log.error("Failed to parse input: {error}", {
-        error: JSON.stringify(z.treeifyError(result.error)),
-      });
-      statusLine = `[malformed status]`;
+    try {
+      const status = statusSchema.parse(input);
+      return renderTheme(status);
+    } catch (e) {
+      if (e instanceof ZodError) {
+        log.error("Failed to parse input: {error}", {
+          error: JSON.stringify(e.issues),
+        });
+      }
     }
-  } else {
-    statusLine = `[no status]`;
   }
 
-  return statusLine;
+  return "";
 }
 
 export { defaultTheme };

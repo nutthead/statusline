@@ -15,9 +15,8 @@ describe("defaultTheme", () => {
 
       expect(typeof result).toBe("string");
       expect(result.length).toBeGreaterThan(0);
-      // Should not be error states
-      expect(result).not.toBe("[malformed status]");
-      expect(result).not.toBe("[no status]");
+      // Should not be empty
+      expect(result).not.toBe("");
     });
 
     test.each(
@@ -38,35 +37,35 @@ describe("defaultTheme", () => {
   });
 
   describe("invalid inputs", () => {
-    test("returns [malformed status] for invalid object", async () => {
+    test("returns empty string for invalid object", async () => {
       const result = await defaultTheme(`{ invalid: "data" }`);
-      expect(result).toBe("[malformed status]");
+      expect(result).toBe("");
     });
 
-    test("returns [malformed status] for empty object", async () => {
+    test("returns empty string for empty object", async () => {
       const result = await defaultTheme(`{}`);
-      expect(result).toBe("[malformed status]");
+      expect(result).toBe("");
     });
 
-    test("returns [malformed status] for missing required fields", async () => {
+    test("returns empty string for missing required fields", async () => {
       const partialStatus = {
         session_id: "test",
         // Missing other required fields
       };
       const result = await defaultTheme(JSON.stringify(partialStatus));
-      expect(result).toBe("[malformed status]");
+      expect(result).toBe("");
     });
   });
 
   describe("empty/undefined inputs", () => {
-    test("returns [no status] for undefined input", async () => {
+    test("returns empty string for undefined input", async () => {
       const result = await defaultTheme(undefined);
-      expect(result).toBe("[no status]");
+      expect(result).toBe("");
     });
 
-    test("returns [no status] for empty string", async () => {
+    test("returns empty string for empty string", async () => {
       const result = await defaultTheme("");
-      expect(result).toBe("[no status]");
+      expect(result).toBe("");
     });
   });
 
