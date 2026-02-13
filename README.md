@@ -1,6 +1,6 @@
 # statusline
 
-Custom status line for Claude Code.
+Themeable status line provider for Claude Code.
 
 ## Preview
 
