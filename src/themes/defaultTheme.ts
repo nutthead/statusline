@@ -3,10 +3,10 @@ import { log } from "../logging";
 import { statusSchema, type Status } from "../schema/statusLine";
 import {
   workspaceStatus,
-  currentGitStatus,
   currentModelStatus,
   currentSessionId,
 } from "../utils";
+import { currentGitStatus } from "../utils/git";
 
 import c from "ansi-colors";
 import { telescope } from "../utils/path";

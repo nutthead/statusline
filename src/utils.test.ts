@@ -1,13 +1,8 @@
-import { test, expect, describe, beforeAll, afterAll } from "bun:test";
-import { mkdtemp, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { test, expect, describe } from "bun:test";
 import {
   abbreviatePath,
   abbreviateModelId,
-  currentBranchName,
   workspaceStatus,
-  currentGitStatus,
   currentModelStatus,
   currentSessionId,
 } from "./utils";
@@ -43,7 +38,7 @@ const defaultStatus: Status = {
 };
 
 describe("abbreviatePath", () => {
-  describe("home directory replacement", () => {
+  describe("when replacing home directory", () => {
     test("replaces homedir with ~ at start of path", () => {
       expect(abbreviatePath("/home/testuser/projects/myapp")).toBe("~/p/myapp");
     });
@@ -61,7 +56,7 @@ describe("abbreviatePath", () => {
     });
   });
 
-  describe("path abbreviation", () => {
+  describe("when abbreviating paths", () => {
     test("abbreviates all segments except the last", () => {
       expect(abbreviatePath("/foo/bar/baz/etc/last")).toBe("/…/b/e/last");
     });
@@ -83,7 +78,7 @@ describe("abbreviatePath", () => {
     });
   });
 
-  describe("edge cases", () => {
+  describe("when handling edge cases", () => {
     test("handles empty string", () => {
       expect(abbreviatePath("")).toBe("");
     });
@@ -108,7 +103,7 @@ describe("abbreviatePath", () => {
     });
   });
 
-  describe("tail option", () => {
+  describe("when using tail option", () => {
     test("default tail=3 truncates paths with more than 3 segments", () => {
       expect(abbreviatePath("/a/b/c/d/e")).toBe("/…/c/d/e");
     });
@@ -144,7 +139,7 @@ describe("abbreviatePath", () => {
 });
 
 describe("abbreviateModelId", () => {
-  describe("claude prefix removal", () => {
+  describe("when removing claude prefix", () => {
     test("removes claude- prefix from model name", () => {
       expect(abbreviateModelId("claude-opus-4.5")).toBe("opus-4.5");
     });
@@ -158,7 +153,7 @@ describe("abbreviateModelId", () => {
     });
   });
 
-  describe("non-claude models", () => {
+  describe("when handling non-claude models", () => {
     test("returns non-claude model unchanged", () => {
       expect(abbreviateModelId("gpt-4")).toBe("gpt-4");
     });
@@ -176,7 +171,7 @@ describe("abbreviateModelId", () => {
     });
   });
 
-  describe("edge cases", () => {
+  describe("when handling edge cases", () => {
     test("handles empty string", () => {
       expect(abbreviateModelId("")).toBe("");
     });
@@ -194,7 +189,7 @@ describe("abbreviateModelId", () => {
     });
   });
 
-  describe("tail option", () => {
+  describe("when using tail option", () => {
     test("default tail=12 does not truncate short model IDs", () => {
       expect(abbreviateModelId("claude-opus-4.5")).toBe("opus-4.5");
     });
@@ -221,131 +216,8 @@ describe("abbreviateModelId", () => {
   });
 });
 
-describe("currentBranchName", () => {
-  describe("valid git repository", () => {
-    test("returns branch name for current repository", async () => {
-      // This test uses the actual repo we're in
-      const result = await currentBranchName(process.cwd());
-      expect(result.status).toBe("branch");
-      if (result.status === "branch") {
-        expect(result.name).toBe("master");
-      }
-    });
-  });
-
-  describe("non-git directory", () => {
-    let tempDir: string;
-
-    beforeAll(async () => {
-      tempDir = await mkdtemp(join(tmpdir(), "git-test-"));
-    });
-
-    afterAll(async () => {
-      await rm(tempDir, { recursive: true, force: true });
-    });
-
-    test("returns none status for non-git directory", async () => {
-      const result = await currentBranchName(tempDir);
-      expect(result.status).toBe("none");
-    });
-  });
-
-  describe("detached HEAD state", () => {
-    let tempDir: string;
-
-    beforeAll(async () => {
-      tempDir = await mkdtemp(join(tmpdir(), "git-detached-"));
-      // Initialize a git repo, create a commit, then detach HEAD
-      const proc = Bun.spawn(
-        [
-          "bash",
-          "-c",
-          `
-          cd "${tempDir}" &&
-          git init &&
-          git config user.email "test@test.com" &&
-          git config user.name "Test" &&
-          echo "test" > file.txt &&
-          git add file.txt &&
-          git commit -m "initial" &&
-          git checkout --detach HEAD
-        `,
-        ],
-        { stdout: "pipe", stderr: "pipe" },
-      );
-      await proc.exited;
-    });
-
-    afterAll(async () => {
-      await rm(tempDir, { recursive: true, force: true });
-    });
-
-    test("returns detached status with commit hash", async () => {
-      const result = await currentBranchName(tempDir);
-      expect(result.status).toBe("detached");
-      if (result.status === "detached") {
-        // Commit hash should be 7 characters (short hash)
-        expect(result.commit).toMatch(/^[a-f0-9]{7}$/);
-      }
-    });
-  });
-
-  describe("fresh git repository", () => {
-    let tempDir: string;
-
-    beforeAll(async () => {
-      tempDir = await mkdtemp(join(tmpdir(), "git-fresh-"));
-      const proc = Bun.spawn(["git", "init", tempDir], {
-        stdout: "pipe",
-        stderr: "pipe",
-      });
-      await proc.exited;
-    });
-
-    afterAll(async () => {
-      await rm(tempDir, { recursive: true, force: true });
-    });
-
-    test("returns branch name for fresh repo with no commits", async () => {
-      const result = await currentBranchName(tempDir);
-      // Fresh repos have a branch but no commits - should still work
-      expect(result.status).toBe("branch");
-      if (result.status === "branch") {
-        // Default branch is typically "master" or "main"
-        expect(["master", "main"]).toContain(result.name);
-      }
-    });
-  });
-});
-
-describe("currentGitStatus", () => {
-  describe("output format", () => {
-    test("returns branch emoji format in current repository", async () => {
-      // Since we're in a git repo on master branch
-      const result = await currentGitStatus();
-      expect(result).toBe("🌿 master");
-    });
-
-    test("returns a non-empty string", async () => {
-      const result = await currentGitStatus();
-      expect(typeof result).toBe("string");
-      expect(result.length).toBeGreaterThan(0);
-    });
-
-    test("result starts with one of the expected emojis", async () => {
-      const result = await currentGitStatus();
-      // Should start with 🌿, 🪾, 💾, or 💥
-      const validPrefixes = ["🌿", "🪾", "💾", "💥"];
-      const startsWithValidEmoji = validPrefixes.some((emoji) =>
-        result.startsWith(emoji),
-      );
-      expect(startsWithValidEmoji).toBe(true);
-    });
-  });
-});
-
 describe("currentModelStatus", () => {
-  describe("Claude models", () => {
+  describe("when handling Claude models", () => {
     test("formats opus model with icon and strips claude- prefix", () => {
       const status = {
         ...defaultStatus,
@@ -371,7 +243,7 @@ describe("currentModelStatus", () => {
     });
   });
 
-  describe("non-Claude models", () => {
+  describe("when handling non-Claude models", () => {
     test("formats non-Claude model without modification", () => {
       const status = {
         ...defaultStatus,
@@ -389,7 +261,7 @@ describe("currentModelStatus", () => {
     });
   });
 
-  describe("output format", () => {
+  describe("when formatting output", () => {
     test("always starts with Model icon", () => {
       const status = {
         ...defaultStatus,
@@ -407,7 +279,7 @@ describe("currentModelStatus", () => {
     });
   });
 
-  describe("edge cases", () => {
+  describe("when handling edge cases", () => {
     test("handles empty model id", () => {
       const status = {
         ...defaultStatus,
@@ -427,7 +299,7 @@ describe("currentModelStatus", () => {
 });
 
 describe("workspaceStatus", () => {
-  describe("same directory", () => {
+  describe("when in same directory", () => {
     test("returns matching paths when project and current dir match", () => {
       const status = {
         ...defaultStatus,
@@ -457,7 +329,7 @@ describe("workspaceStatus", () => {
     });
   });
 
-  describe("different directories", () => {
+  describe("when in different directories", () => {
     test("returns both abbreviated paths when dirs differ", () => {
       const status = {
         ...defaultStatus,
@@ -501,7 +373,7 @@ describe("workspaceStatus", () => {
     });
   });
 
-  describe("path abbreviation", () => {
+  describe("when abbreviating paths", () => {
     test("replaces home directory with ~", () => {
       const status = {
         ...defaultStatus,
@@ -547,7 +419,7 @@ describe("currentSessionId", () => {
     expect(currentSessionId(status)).toBe("abc-123");
   });
 
-  describe("tail option", () => {
+  describe("when using tail option", () => {
     const longId = "a1b2c3d4-e5f6-7890-abcd-ef1234567890";
     const longStatus = { ...defaultStatus, session_id: longId };
 

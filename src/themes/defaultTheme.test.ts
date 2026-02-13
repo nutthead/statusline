@@ -8,7 +8,7 @@ const fixtureFiles = readdirSync(fixturesDir).filter((f) =>
 );
 
 describe("defaultTheme", () => {
-  describe("valid fixture inputs", () => {
+  describe("when given valid fixture inputs", () => {
     test.each(fixtureFiles)("%s produces valid output", async (filename) => {
       const fixture = await Bun.file(`${fixturesDir}/${filename}`).json();
       const result = await defaultTheme(fixture);
@@ -40,7 +40,7 @@ describe("defaultTheme", () => {
     });
   });
 
-  describe("invalid inputs", () => {
+  describe("when given invalid inputs", () => {
     test("returns empty string for invalid object", async () => {
       const result = await defaultTheme(`{ invalid: "data" }`);
       expect(result).toBe("");
@@ -62,7 +62,7 @@ describe("defaultTheme", () => {
     });
   });
 
-  describe("empty/undefined inputs", () => {
+  describe("when given empty or undefined inputs", () => {
     test("returns empty string for undefined input", async () => {
       const result = await defaultTheme(undefined);
       expect(result).toBe("");
@@ -74,7 +74,7 @@ describe("defaultTheme", () => {
     });
   });
 
-  describe("output format", () => {
+  describe("when formatting output", () => {
     test("output has two lines separated by newline", async () => {
       const fixture = await Bun.file(`${fixturesDir}/statusline-1.json`).json();
       const result = await defaultTheme(fixture);

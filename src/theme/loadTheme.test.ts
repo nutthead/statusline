@@ -15,7 +15,7 @@ describe("loadTheme", () => {
     await rm(tempDir, { recursive: true, force: true });
   });
 
-  describe("valid theme loading", () => {
+  describe("when loading valid themes", () => {
     test("loads a valid theme module with default export", async () => {
       const themePath = join(tempDir, "valid-theme.ts");
       await writeFile(
@@ -47,7 +47,7 @@ describe("loadTheme", () => {
     });
   });
 
-  describe("invalid theme handling", () => {
+  describe("when handling invalid themes", () => {
     test("throws for non-existent file", () => {
       // Current implementation throws on import failure rather than returning null
       expect(loadTheme(join(tempDir, "does-not-exist.ts"))).rejects.toThrow();
@@ -75,7 +75,7 @@ describe("loadTheme", () => {
     });
   });
 
-  describe("theme function behavior", () => {
+  describe("when using theme functions", () => {
     test("loaded theme receives input parameter", async () => {
       const themePath = join(tempDir, "echo-theme.ts");
       await writeFile(
