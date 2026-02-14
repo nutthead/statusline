@@ -4,9 +4,9 @@ This document provides essential information for AI coding agents working on the
 
 ## Project Overview
 
-**@nutthead/cc-statusline** is a custom status line for Claude Code. It reads JSON status data from stdin, formats it using a theme function, and outputs a human-readable status line to stdout.
+**@nutthead/cc-statusline** is a themeable status line provider for Claude Code. It reads JSON status data from stdin, formats it using a theme function, and outputs a human-readable status line to stdout.
 
-The project is published on npm as `@nutthead/cc-statusline` and provides both:
+The project is published on npm as `@nutthead/cc-statusline` and provides:
 
 - A **CLI tool** (`bin/cc-statusline.js`) for installing the status line binary
 - A **runtime binary** (`target/statusline`) that formats and displays the status line
@@ -14,8 +14,9 @@ The project is published on npm as `@nutthead/cc-statusline` and provides both:
 ### How It Works
 
 1. Claude Code invokes the status line binary with JSON data via stdin
-2. The binary parses the JSON, applies a theme function (default or custom)
-3. The formatted status line is output to stdout and displayed in Claude Code's interface
+2. The binary parses the JSON, validates it against a Zod schema
+3. Applies a theme function (built-in default, powerline, or custom via `--theme-file`)
+4. The formatted status line is output to stdout and displayed in Claude Code's interface
 
 ## Technology Stack
 
@@ -30,17 +31,17 @@ The project is published on npm as `@nutthead/cc-statusline` and provides both:
 
 ## Key Dependencies
 
-| Package                              | Purpose                                                         |
-| ------------------------------------ | --------------------------------------------------------------- |
-| `@logtape/logtape` + `@logtape/file` | Structured file logging to `~/.local/state/statusline/app.log`  |
-| `ansi-colors`                        | For adding ANSI colors to your text and symbols in the terminal |
-| `meow`                               | CLI argument parsing                                            |
-| `neverthrow`                         | Type-safe error handling                                        |
-| `simple-git`                         | Git operations for branch detection                             |
-| `terminal-size`                      | Get terminal dimensions for layout calculations                 |
-| `ts-pattern`                         | Exhaustive pattern matching                                     |
-| `type-fest`                          | TypeScript utility types                                        |
-| `zod`                                | Runtime schema validation for status line input                 |
+| Package                              | Purpose                                                        |
+| ------------------------------------ | -------------------------------------------------------------- |
+| `@logtape/logtape` + `@logtape/file` | Structured file logging to `~/.local/state/statusline/app.log` |
+| `ansi-colors`                        | For adding ANSI colors to text and symbols in the terminal     |
+| `meow`                               | CLI argument parsing                                           |
+| `neverthrow`                         | Type-safe error handling                                       |
+| `simple-git`                         | Git operations for branch detection                            |
+| `terminal-size`                      | Get terminal dimensions for layout calculations                |
+| `ts-pattern`                         | Exhaustive pattern matching                                    |
+| `type-fest`                          | TypeScript utility types                                       |
+| `zod`                                | Runtime schema validation for status line input                |
 
 ## Project Structure
 
@@ -56,7 +57,9 @@ The project is published on npm as `@nutthead/cc-statusline` and provides both:
 │   │   └── statusLine.test.ts  # Schema validation tests
 │   ├── themes/
 │   │   ├── defaultTheme.ts     # Default two-row status line theme
-│   │   └── defaultTheme.test.ts # Theme rendering tests
+│   │   ├── defaultTheme.test.ts # Theme rendering tests
+│   │   ├── powerlineTheme.ts   # Powerline-style single-row theme
+│   │   └── powerlineTheme.test.ts # Powerline theme tests
 │   ├── theme/
 │   │   ├── loadTheme.ts        # Dynamic theme loader (supports custom themes)
 │   │   └── loadTheme.test.ts   # Theme loader tests
@@ -70,7 +73,7 @@ The project is published on npm as `@nutthead/cc-statusline` and provides both:
 │       ├── term.ts             # Terminal display width calculations
 │       └── term.test.ts        # Terminal utility tests
 ├── test/
-│   └── setup.ts                # Test preloader (mocks file logging, homedir, terminal-size)
+│   └── setup.ts                # Test preloader (mocks file logging, homedir, terminal-size, ansi-colors)
 ├── fixtures/                   # JSON fixtures for testing
 │   ├── statusline-1.json       # Example status with null usage
 │   └── statusline-2.json       # Example status with actual usage data
@@ -93,7 +96,7 @@ The project has two distinct entry points with different purposes:
 ### 1. `index.ts` — Bun Binary Entry Point
 
 - Reads JSON from `Bun.stdin`
-- Applies theme function (default or custom via `--theme` flag)
+- Applies theme function (built-in or custom)
 - Outputs formatted status line to stdout
 - Compiled to standalone binary at `target/statusline`
 - Used by Claude Code at runtime
@@ -102,8 +105,14 @@ The project has two distinct entry points with different purposes:
 
 ```bash
 echo '<json>' | ./target/statusline
-echo '<json>' | ./target/statusline --theme ~/.config/cc-statusline/theme.js
+echo '<json>' | ./target/statusline --theme powerline
+echo '<json>' | ./target/statusline --theme-file ~/.config/cc-statusline/theme.js
 ```
+
+**Flags:**
+
+- `--theme,      -t` — Use a built-in theme (`powerline`). If omitted, uses `default` theme.
+- `--theme-file, -f` — Use a custom theme file (mutually exclusive with `--theme`)
 
 ### 2. `src/cli.ts` — Node CLI Entry Point
 
@@ -183,6 +192,7 @@ The `bunfig.toml` preloads `test/setup.ts` before running tests, which mocks:
 - `@logtape/file` → suppresses file I/O during tests
 - `node:os` homedir → returns `/home/testuser` for consistent testing
 - `terminal-size` → returns fixed dimensions `{ columns: 123, rows: 24 }`
+- `ansi-colors` → returns identity functions (no colors in tests)
 
 ### Testing Patterns
 
@@ -199,7 +209,7 @@ Configuration in `biome.json`:
 
 | Setting          | Value                                          |
 | ---------------- | ---------------------------------------------- |
-| Formatter        | Enabled, 2-space indentation                   |
+| Formatter        | Enabled, 2-space indentation (space style)     |
 | Quotes           | Double quotes for JavaScript                   |
 | Linter           | Enabled with recommended rules                 |
 | Organize Imports | Enabled (automatically sorts and deduplicates) |
@@ -228,22 +238,24 @@ Configuration in `tsconfig.json`:
 - Use `ts-pattern` for exhaustive pattern matching instead of switch statements
 - Use JSDoc comments for public functions
 
-## Default Theme Layout
+## Built-in Themes
 
-The default theme (`src/themes/defaultTheme.ts`) renders a **two-row status line**:
+### Default Theme (`src/themes/defaultTheme.ts`)
 
-### Row 1 (Left to Right)
+Renders a **two-row status line**:
 
-- 🤖 Model ID (abbreviated, e.g., "opus-4.5")
-- 📃 Session ID (first 8 chars)
-- 🗂️ Project directory (telescoped path)
+**Row 1** (left to right):
 
-### Row 2 (Left to Right)
+- 🤖 Model ID (abbreviated, e.g., "opus-4-5") and Claude Code version
+- 📃 Session ID
+- 🗂️ Project directory (compressed and telescoped path)
+
+**Row 2** (left to right):
 
 - Git status: 🌿 branch-name, 🪾 commit-hash, 💾 (not a repo), or 💥 (error)
-- Context window usage percentage (e.g., "42%")
+- Context window usage percentage (color-coded: green ≤50%, blue ≤75%, yellow ≤87.5%, red >87.5%)
 
-### Layout Algorithm
+**Layout Algorithm:**
 
 - Terminal width is detected via `terminal-size`
 - Horizontal padding of 4 columns is subtracted
@@ -251,9 +263,27 @@ The default theme (`src/themes/defaultTheme.ts`) renders a **two-row status line
 - Row 2: Git status left-aligned, usage percentage right-aligned
 - Emoji display width is calculated as 2 columns each
 
+### Powerline Theme (`src/themes/powerlineTheme.ts`)
+
+Renders a **single-row powerline-style status bar** with colored segments and arrow separators:
+
+**Segments** (left to right):
+
+- 🤖 Model ID and version (blue background, white text)
+- 📃 Session ID (magenta background, white text)
+- 🗂️ Project directory (cyan background, black text)
+- 🌿 Git branch or status (green background, black text)
+- Usage percentage (yellow background, black text) — only if > 0%
+
+**Features:**
+
+- Uses powerline arrow separators (`\uE0B0`) between segments
+- Segments wrap to new lines when they exceed terminal width
+- Each segment has distinct background color for visual separation
+
 ## Custom Themes
 
-Users can provide custom themes via `--theme <path>`:
+Users can provide custom themes via `--theme-file <path>`:
 
 ```typescript
 // Theme function signature
@@ -320,7 +350,7 @@ Path formatting utilities:
 
 Model ID formatting:
 
-- `abbreviateModelId(model, options?)` → Strip "claude-" prefix and truncate to fit
+- `abbreviateModelId(model, options?)` → Strip "claude-" prefix and truncate to fit (default 12 chars)
 
 ### `src/utils/term.ts`
 

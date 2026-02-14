@@ -13,11 +13,23 @@ mock.module("terminal-size", () => ({
   default: () => ({ columns: 123, rows: 24 }),
 }));
 
-mock.module("ansi-colors", () => ({
-  default: {
-    green: (s: string) => s,
-    blue: (s: string) => s,
-    yellow: (s: string) => s,
-    red: (s: string) => s,
-  },
-}));
+mock.module("ansi-colors", () => {
+  const identity = (s: string) => s;
+  return {
+    default: {
+      black: identity,
+      white: identity,
+      red: identity,
+      green: identity,
+      yellow: identity,
+      blue: identity,
+      magenta: identity,
+      cyan: identity,
+      bgBlue: identity,
+      bgMagenta: identity,
+      bgCyan: identity,
+      bgGreen: identity,
+      bgYellow: identity,
+    },
+  };
+});

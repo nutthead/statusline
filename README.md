@@ -41,20 +41,21 @@ Then add to `~/.claude/settings.json`:
 
 Use `--overwrite` to replace an existing installation.
 
+## Themes
+
+Built-in themes: `default` (two-row), `powerline` (single-row with powerline arrows).
+
+Use `--theme powerline` to select a built-in theme.
+
 ## Custom Themes
 
-Create a JS file that default-exports a theme function (e.g. `~/.config/cc-statusline/theme.js`):
+Create a JS file that default-exports an async theme function (e.g. `~/.config/cc-statusline/theme.js`):
 
 ```js
-export default function theme(input) {
+export default async function theme(input) {
   if (!input) return "";
-
   const status = JSON.parse(input);
-  const dir = status.workspace.current_dir;
-  const model = status.model.display_name;
-  const ctx = status.context_window.used_percentage ?? 0;
-
-  return `${model} | ${dir} | ctx: ${Math.round(ctx)}%`;
+  return `${status.model.display_name} | ${status.workspace.current_dir}`;
 }
 ```
 
@@ -64,7 +65,7 @@ Then point to it in `~/.claude/settings.json`:
 {
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline --theme ~/.config/cc-statusline/theme.js"
+    "command": "~/.claude/statusline --theme-file ~/.config/cc-statusline/theme.js"
   }
 }
 ```
