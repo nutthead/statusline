@@ -4,8 +4,8 @@ import { match } from "ts-pattern";
 import { ZodError } from "zod";
 import { log } from "../logging";
 import { type Status, statusSchema } from "../schema/statusLine";
-import { currentBranchName } from "../utils/git";
-import { abbreviateModelId } from "../utils/model";
+import { getCurrentBranchName } from "../utils/git";
+import { shortenModelId } from "../utils/model";
 import { compress, telescope } from "../utils/path";
 import { getDisplayWidth } from "../utils/term";
 
@@ -87,13 +87,13 @@ function layoutSegments(segments: Segment[], maxWidth: number): string {
 }
 
 async function renderLine1(status: Status): Promise<string> {
-  const modelId = abbreviateModelId(status.model.id);
+  const modelId = shortenModelId(status.model.id);
   const modelText = `🤖 ${modelId} (${status.version})`;
 
   const projectDir = compress(telescope(status.workspace.project_dir));
   const projectText = `🗂️ ${projectDir}`;
 
-  const branch = await currentBranchName();
+  const branch = await getCurrentBranchName();
   const branchText = match(branch)
     .with({ status: "none" }, () => `💾`)
     .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)

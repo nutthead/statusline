@@ -229,7 +229,7 @@ Configuration in `tsconfig.json`:
 
 ### Naming & Style
 
-- **Functions**: camelCase (e.g., `currentBranchName`, `abbreviateModelId`)
+- **Functions**: camelCase (e.g., `getCurrentBranchName`, `shortenModelId`)
 - **Types/Interfaces**: PascalCase (e.g., `BranchResult`, `Status`)
 - **Files**: camelCase (except entry points like `index.ts`)
 - **Constants**: UPPER_SNAKE_CASE for module-level constants
@@ -314,7 +314,7 @@ The JSON input from Claude Code is validated using Zod. See `src/schema/statusLi
 
 Git branch detection using `simple-git`:
 
-- `currentBranchName(cwd?)` → Returns `BranchResult` with status: `"none"`, `"branch"`, `"detached"`, or `"error"`
+- `getCurrentBranchName(cwd?)` → Returns `BranchResult` with status: `"none"`, `"branch"`, `"detached"`, or `"error"`
 - `currentGitStatus()` → Returns formatted string with emoji
 
 ### `src/utils/path.ts`
@@ -329,7 +329,7 @@ Path formatting utilities:
 
 Model ID formatting:
 
-- `abbreviateModelId(model, options?)` → Strip "claude-" prefix and truncate to fit (default 12 chars)
+- `shortenModelId(model, options?)` → Strip "claude-" prefix and truncate to fit (default 12 chars)
 
 ### `src/utils/term.ts`
 

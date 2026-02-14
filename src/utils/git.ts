@@ -2,7 +2,7 @@ import { type SimpleGit, simpleGit } from "simple-git";
 import { match } from "ts-pattern";
 
 /**
- * Result type for currentBranchName function.
+ * Result type for getCurrentBranchName function.
  * - `branch`: The current branch name when on a branch
  * - `detached`: In detached HEAD state (checked out a specific commit)
  * - `error`: Failed to get branch info (not a git repo, etc.)
@@ -19,7 +19,7 @@ type BranchResult =
  * @param cwd - Optional working directory (defaults to process.cwd())
  * @returns BranchResult indicating branch name, detached state, or error
  */
-async function currentBranchName(cwd?: string): Promise<BranchResult> {
+async function getCurrentBranchName(cwd?: string): Promise<BranchResult> {
   const git: SimpleGit = simpleGit(cwd);
 
   try {
@@ -74,7 +74,7 @@ async function currentBranchName(cwd?: string): Promise<BranchResult> {
  *   - `💥` - Error determining git status
  */
 async function currentGitStatus() {
-  const gitBranch = await currentBranchName();
+  const gitBranch = await getCurrentBranchName();
   const gitStatus = match(gitBranch)
     .with({ status: "branch" }, ({ name }) => `🌿 ${name}`)
     .with({ status: "detached" }, ({ commit }) => `🪾 ${commit}`)
@@ -85,5 +85,5 @@ async function currentGitStatus() {
   return gitStatus;
 }
 
-export { currentBranchName, currentGitStatus };
+export { getCurrentBranchName, currentGitStatus };
 export type { BranchResult };

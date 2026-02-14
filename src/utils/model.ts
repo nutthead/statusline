@@ -5,10 +5,10 @@
  * @param model - The model ID string
  * @param options.tail - Maximum character length of the result (default: 12).
  *
- * @example abbreviateModelId("claude-opus-4.5")           // "opus-4.5"
- * @example abbreviateModelId("some-very-long-model-name") // "…-model-name"
+ * @example shortenModelId("claude-opus-4.5")           // "opus-4.5"
+ * @example shortenModelId("some-very-long-model-name") // "…-model-name"
  */
-function abbreviateModelId(model: string, options?: { tail?: number }): string {
+function shortenModelId(model: string, options?: { tail?: number }): string {
   const tail = options?.tail ?? 12;
 
   // Step 1: Strip "claude-" prefix
@@ -20,4 +20,4 @@ function abbreviateModelId(model: string, options?: { tail?: number }): string {
   return `…${name.slice(-(tail - 1))}`;
 }
 
-export { abbreviateModelId };
+export { shortenModelId };

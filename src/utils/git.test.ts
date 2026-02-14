@@ -2,13 +2,13 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { currentBranchName, currentGitStatus } from "./git";
+import { getCurrentBranchName, currentGitStatus } from "./git";
 
-describe("currentBranchName", () => {
+describe("getCurrentBranchName", () => {
   describe("when in a valid git repository", () => {
     test("returns branch name for current repository", async () => {
       // This test uses the actual repo we're in
-      const result = await currentBranchName(process.cwd());
+      const result = await getCurrentBranchName(process.cwd());
       expect(result.status).toBe("branch");
       if (result.status === "branch") {
         expect(result.name).toBe("master");
@@ -28,7 +28,7 @@ describe("currentBranchName", () => {
     });
 
     test("returns none status for non-git directory", async () => {
-      const result = await currentBranchName(tempDir);
+      const result = await getCurrentBranchName(tempDir);
       expect(result.status).toBe("none");
     });
   });
@@ -64,7 +64,7 @@ describe("currentBranchName", () => {
     });
 
     test("returns detached status with commit hash", async () => {
-      const result = await currentBranchName(tempDir);
+      const result = await getCurrentBranchName(tempDir);
       expect(result.status).toBe("detached");
       if (result.status === "detached") {
         // Commit hash should be 7 characters (short hash)
@@ -90,7 +90,7 @@ describe("currentBranchName", () => {
     });
 
     test("returns branch name for fresh repo with no commits", async () => {
-      const result = await currentBranchName(tempDir);
+      const result = await getCurrentBranchName(tempDir);
       // Fresh repos have a branch but no commits - should still work
       expect(result.status).toBe("branch");
       if (result.status === "branch") {

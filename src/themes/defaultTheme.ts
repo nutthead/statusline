@@ -4,8 +4,8 @@ import { match } from "ts-pattern";
 import { ZodError } from "zod";
 import { log } from "../logging";
 import { type Status, statusSchema } from "../schema/statusLine";
-import { currentBranchName } from "../utils/git";
-import { abbreviateModelId } from "../utils/model";
+import { getCurrentBranchName } from "../utils/git";
+import { shortenModelId } from "../utils/model";
 import { compress, telescope } from "../utils/path";
 import { getDisplayWidth } from "../utils/term";
 
@@ -26,7 +26,7 @@ function colorizeUsageStatus(usedPercentage: number) {
 }
 
 async function renderLine1(status: Status): Promise<string> {
-  const modelId = abbreviateModelId(status.model.id);
+  const modelId = shortenModelId(status.model.id);
   const modelStatus = `🤖 ${modelId} (${status.version})`;
 
   const sessionStatus = `📃 ${status.session_id}`;
@@ -53,7 +53,7 @@ async function renderLine1(status: Status): Promise<string> {
 }
 
 async function renderLine2(status: Status): Promise<string> {
-  const branch = await currentBranchName();
+  const branch = await getCurrentBranchName();
   const branchStatus = match(branch)
     .with({ status: "none" }, () => {
       return `💾`;
