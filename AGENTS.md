@@ -369,10 +369,19 @@ log.error("error occurred: {error}", { error: error.message });
 
 ## Release Process
 
-1. Update version in `package.json`
-2. Run `bun run prepublishOnly` to build CLI
-3. Commit changes
-4. Run `npm publish` (requires npm authentication)
+```bash
+# 1. Bump version (updates package.json, commits, and creates git tag)
+npm version minor        # or: npm version patch / npm version major
+
+# 2. Push commit and tag to GitHub
+git push && git push --tags
+
+# 3. Publish to npm (runs prepublishOnly → builds CLI automatically)
+npm publish
+
+# 4. Create GitHub release from the tag
+gh release create v<version> --generate-notes
+```
 
 ## Useful References
 
