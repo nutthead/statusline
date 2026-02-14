@@ -8,7 +8,7 @@ This document provides essential information for AI coding agents working on the
 
 The project is published on npm as `@nutthead/cc-statusline` and provides:
 
-- A **CLI tool** (`bin/cc-statusline.js`) for installing the status line binary
+- A **CLI tool** (`bin/install.js`) for installing the status line binary
 - A **runtime binary** (`target/statusline`) that formats and displays the status line
 
 ### How It Works
@@ -78,7 +78,7 @@ The project is published on npm as `@nutthead/cc-statusline` and provides:
 │   ├── statusline-1.json            # Example status with null usage
 │   └── statusline-2.json            # Example status with actual usage data
 ├── bin/                             # Compiled CLI output (gitignored, committed to npm)
-│   └── cc-statusline.js             # Compiled CLI for npm distribution
+│   └── install.js                   # Compiled CLI for npm distribution
 ├── target/                          # Compiled binary output (gitignored)
 │   └── statusline                   # Standalone Bun binary
 ├── package.json                     # Package manifest
@@ -118,7 +118,7 @@ echo '<json>' | ./target/statusline --theme-file ~/.config/cc-statusline/theme.j
 - Provides the `install` command for users
 - Builds the binary and copies it to `~/.claude/`
 - What npm users invoke via `bunx @nutthead/cc-statusline install`
-- Compiled to `bin/cc-statusline.js` for npm distribution
+- Compiled to `bin/install.js` for npm distribution
 
 **Usage:**
 
@@ -135,7 +135,7 @@ bunx @nutthead/cc-statusline install --overwrite
 # Build standalone binary to target/statusline
 bun run build:binary
 
-# Build CLI for npm distribution to bin/cc-statusline.js
+# Build CLI for npm distribution to bin/install.js
 bun run build:cli
 
 # Install binary to ~/.claude/

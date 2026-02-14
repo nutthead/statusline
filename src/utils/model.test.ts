@@ -58,9 +58,7 @@ describe("shortenModelId", () => {
     });
 
     test("default tail=12 truncates long model IDs", () => {
-      expect(shortenModelId("some-very-long-model-name")).toBe(
-        "…-model-name",
-      );
+      expect(shortenModelId("some-very-long-model-name")).toBe("…-model-name");
     });
 
     test("truncates with … prefix when exceeding tail", () => {
@@ -68,9 +66,7 @@ describe("shortenModelId", () => {
     });
 
     test("tail larger than result length returns full result", () => {
-      expect(shortenModelId("claude-opus-4.5", { tail: 50 })).toBe(
-        "opus-4.5",
-      );
+      expect(shortenModelId("claude-opus-4.5", { tail: 50 })).toBe("opus-4.5");
     });
 
     test("tail=1 returns only …", () => {

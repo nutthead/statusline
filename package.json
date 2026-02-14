@@ -4,7 +4,7 @@
   "version": "0.4.0",
   "type": "module",
   "bin": {
-    "cc-statusline": "bin/cc-statusline.js"
+    "cc-statusline": "bin/install.js"
   },
   "private": false,
   "license": "MIT",
@@ -28,7 +28,7 @@
   ],
   "scripts": {
     "build:binary": "mkdir -p target && bun build --compile ./index.ts --outfile target/statusline",
-    "build:cli": "bun build ./src/cli.ts --outfile ./bin/cc-statusline.js --target node",
+    "build:cli": "bun build ./src/cli.ts --outfile ./bin/install.js --target node",
     "prepublishOnly": "bun run build:cli",
     "install:binary": "cp target/statusline ~/.claude/",
     "biome:format": "bunx biome format --write",
