@@ -14,9 +14,8 @@ The project is published on npm as `@nutthead/cc-statusline` and provides:
 ### How It Works
 
 1. Claude Code invokes the status line binary with JSON data via stdin
-2. The binary parses the JSON, validates it against a Zod schema
-3. Applies a theme function (built-in default, powerline, or custom via `--theme-file`)
-4. The formatted status line is output to stdout and displayed in Claude Code's interface
+2. The binary parses the JSON (validated via Zod schema), applies a theme function
+3. The formatted status line is output to stdout and displayed in Claude Code's interface
 
 ## Technology Stack
 
@@ -31,62 +30,63 @@ The project is published on npm as `@nutthead/cc-statusline` and provides:
 
 ## Key Dependencies
 
-| Package                              | Purpose                                                        |
-| ------------------------------------ | -------------------------------------------------------------- |
-| `@logtape/logtape` + `@logtape/file` | Structured file logging to `~/.local/state/statusline/app.log` |
-| `ansi-colors`                        | For adding ANSI colors to text and symbols in the terminal     |
-| `meow`                               | CLI argument parsing                                           |
-| `neverthrow`                         | Type-safe error handling                                       |
-| `simple-git`                         | Git operations for branch detection                            |
-| `terminal-size`                      | Get terminal dimensions for layout calculations                |
-| `ts-pattern`                         | Exhaustive pattern matching                                    |
-| `type-fest`                          | TypeScript utility types                                       |
-| `zod`                                | Runtime schema validation for status line input                |
+| Package                   | Purpose                                                          |
+| ------------------------- | ---------------------------------------------------------------- |
+| `@logtape/logtape`        | Structured logging                                               |
+| `@logtape/file`           | File sink for logs at `~/.local/state/statusline/app.log`        |
+| `chalk`                   | Terminal colors and styling                                      |
+| `meow`                    | CLI argument parsing                                             |
+| `neverthrow`              | Type-safe error handling (available but unused in current code)  |
+| `simple-git`              | Git operations for branch detection                              |
+| `terminal-size`           | Get terminal dimensions for layout calculations                  |
+| `ts-pattern`              | Exhaustive pattern matching                                      |
+| `type-fest`               | TypeScript utility types                                         |
+| `zod`                     | Runtime schema validation for status line input                  |
 
 ## Project Structure
 
 ```
 .
-├── index.ts                    # Main entry point: reads stdin, applies theme, outputs status
+├── index.ts                         # Main entry point: reads stdin, applies theme, outputs status
 ├── src/
-│   ├── cli.ts                  # CLI entry point for `install` command
-│   ├── cli.test.ts             # Tests for CLI install functionality
-│   ├── logging.ts              # LogTape configuration
+│   ├── cli.ts                       # CLI entry point for `install` command
+│   ├── cli.test.ts                  # Tests for CLI install functionality
+│   ├── logging.ts                   # LogTape configuration
 │   ├── schema/
-│   │   ├── statusLine.ts       # Zod schema for Claude Code status JSON
-│   │   └── statusLine.test.ts  # Schema validation tests
+│   │   ├── statusLine.ts            # Zod schema for Claude Code status JSON
+│   │   └── statusLine.test.ts       # Schema validation tests
 │   ├── themes/
-│   │   ├── defaultTheme.ts     # Default two-row status line theme
-│   │   ├── defaultTheme.test.ts # Theme rendering tests
-│   │   ├── powerlineTheme.ts   # Powerline-style single-row theme
-│   │   └── powerlineTheme.test.ts # Powerline theme tests
+│   │   ├── defaultTheme.ts          # Default two-row status line theme
+│   │   ├── defaultTheme.test.ts     # Default theme rendering tests
+│   │   ├── powerlineTheme.ts        # Powerline-style single-row theme
+│   │   └── powerlineTheme.test.ts   # Powerline theme rendering tests
 │   ├── theme/
-│   │   ├── loadTheme.ts        # Dynamic theme loader (supports custom themes)
-│   │   └── loadTheme.test.ts   # Theme loader tests
+│   │   ├── loadTheme.ts             # Dynamic theme loader (supports custom themes)
+│   │   └── loadTheme.test.ts        # Theme loader tests
 │   └── utils/
-│       ├── git.ts              # Git branch detection using simple-git
-│       ├── git.test.ts         # Git utility tests
-│       ├── model.ts            # Model ID abbreviation utilities
-│       ├── model.test.ts       # Model utility tests
-│       ├── path.ts             # Path compression and formatting (compress, tildify, telescope)
-│       ├── path.test.ts        # Path utility tests
-│       ├── term.ts             # Terminal display width calculations
-│       └── term.test.ts        # Terminal utility tests
+│       ├── git.ts                   # Git branch detection using simple-git
+│       ├── git.test.ts              # Git utility tests
+│       ├── model.ts                 # Model ID abbreviation utilities
+│       ├── model.test.ts            # Model utility tests
+│       ├── path.ts                  # Path compression and formatting
+│       ├── path.test.ts             # Path utility tests
+│       ├── term.ts                  # Terminal display width calculations
+│       └── term.test.ts             # Terminal utility tests
 ├── test/
-│   └── setup.ts                # Test preloader (mocks file logging, homedir, terminal-size, ansi-colors)
-├── fixtures/                   # JSON fixtures for testing
-│   ├── statusline-1.json       # Example status with null usage
-│   └── statusline-2.json       # Example status with actual usage data
-├── bin/                        # Compiled CLI output (gitignored, committed to npm)
-│   └── cc-statusline.js        # Compiled CLI for npm distribution
-├── target/                     # Compiled binary output (gitignored)
-│   └── statusline              # Standalone Bun binary
-├── package.json                # Package manifest
-├── tsconfig.json               # TypeScript configuration
-├── biome.json                  # Biome formatter/linter config
-├── bunfig.toml                 # Bun configuration (test preload)
-├── justfile                    # Just task runner recipes
-└── README.md                   # User-facing documentation
+│   └── setup.ts                     # Test preloader (mocks file logging, homedir, terminal-size, chalk)
+├── fixtures/                        # JSON fixtures for testing
+│   ├── statusline-1.json            # Example status with null usage
+│   └── statusline-2.json            # Example status with actual usage data
+├── bin/                             # Compiled CLI output (gitignored, committed to npm)
+│   └── cc-statusline.js             # Compiled CLI for npm distribution
+├── target/                          # Compiled binary output (gitignored)
+│   └── statusline                   # Standalone Bun binary
+├── package.json                     # Package manifest
+├── tsconfig.json                    # TypeScript configuration
+├── biome.json                       # Biome formatter/linter config
+├── bunfig.toml                      # Bun configuration (test preload)
+├── justfile                         # Just task runner recipes
+└── README.md                        # User-facing documentation
 ```
 
 ## Dual Entry Points
@@ -96,7 +96,7 @@ The project has two distinct entry points with different purposes:
 ### 1. `index.ts` — Bun Binary Entry Point
 
 - Reads JSON from `Bun.stdin`
-- Applies theme function (built-in or custom)
+- Applies theme function (built-in or custom via `--theme-file` flag)
 - Outputs formatted status line to stdout
 - Compiled to standalone binary at `target/statusline`
 - Used by Claude Code at runtime
@@ -110,8 +110,7 @@ echo '<json>' | ./target/statusline --theme-file ~/.config/cc-statusline/theme.j
 ```
 
 **Flags:**
-
-- `--theme,      -t` — Use a built-in theme (`powerline`). If omitted, uses `default` theme.
+- `--theme, -t` — Use a built-in theme (`powerline`)
 - `--theme-file, -f` — Use a custom theme file (mutually exclusive with `--theme`)
 
 ### 2. `src/cli.ts` — Node CLI Entry Point
@@ -192,7 +191,7 @@ The `bunfig.toml` preloads `test/setup.ts` before running tests, which mocks:
 - `@logtape/file` → suppresses file I/O during tests
 - `node:os` homedir → returns `/home/testuser` for consistent testing
 - `terminal-size` → returns fixed dimensions `{ columns: 123, rows: 24 }`
-- `ansi-colors` → returns identity functions (no colors in tests)
+- `chalk` → identity functions to disable colors in tests
 
 ### Testing Patterns
 
@@ -209,7 +208,7 @@ Configuration in `biome.json`:
 
 | Setting          | Value                                          |
 | ---------------- | ---------------------------------------------- |
-| Formatter        | Enabled, 2-space indentation (space style)     |
+| Formatter        | Enabled, 2-space indentation                   |
 | Quotes           | Double quotes for JavaScript                   |
 | Linter           | Enabled with recommended rules                 |
 | Organize Imports | Enabled (automatically sorts and deduplicates) |
@@ -245,41 +244,21 @@ Configuration in `tsconfig.json`:
 Renders a **two-row status line**:
 
 **Row 1** (left to right):
-
-- 🤖 Model ID (abbreviated, e.g., "opus-4-5") and Claude Code version
-- 📃 Session ID
+- 🤖 Model ID (abbreviated, e.g., "opus-4.5") with version
+- 📃 Session ID (full UUID)
 - 🗂️ Project directory (compressed and telescoped path)
 
 **Row 2** (left to right):
-
 - Git status: 🌿 branch-name, 🪾 commit-hash, 💾 (not a repo), or 💥 (error)
-- Context window usage percentage (color-coded: green ≤50%, blue ≤75%, yellow ≤87.5%, red >87.5%)
-
-**Layout Algorithm:**
-
-- Terminal width is detected via `terminal-size`
-- Horizontal padding of 4 columns is subtracted
-- Row 1: Model left-aligned, session centered, project right-aligned
-- Row 2: Git status left-aligned, usage percentage right-aligned
-- Emoji display width is calculated as 2 columns each
+- Context window usage percentage (colorized: green ≤50%, blue ≤75%, yellow ≤87.5%, red >87.5%)
 
 ### Powerline Theme (`src/themes/powerlineTheme.ts`)
 
-Renders a **single-row powerline-style status bar** with colored segments and arrow separators:
-
-**Segments** (left to right):
-
-- 🤖 Model ID and version (blue background, white text)
-- 📃 Session ID (magenta background, white text)
-- 🗂️ Project directory (cyan background, black text)
-- 🌿 Git branch or status (green background, black text)
-- Usage percentage (yellow background, black text) — only if > 0%
-
-**Features:**
-
-- Uses powerline arrow separators (`\uE0B0`) between segments
-- Segments wrap to new lines when they exceed terminal width
-- Each segment has distinct background color for visual separation
+Renders a **single-row status line** with powerline arrows:
+- Uses right-pointing solid triangle (U+E0B0) separators
+- Muted dark background colors for each segment
+- Segments: Model → Session → Project → Git → Usage
+- Wraps to multiple lines when segments exceed terminal width
 
 ## Custom Themes
 
@@ -335,7 +314,7 @@ The JSON input from Claude Code is validated using Zod. See `src/schema/statusLi
 
 Git branch detection using `simple-git`:
 
-- `currentBranchName(cwd?)` → Returns `BranchResult` with status: "none", "branch", "detached", or "error"
+- `currentBranchName(cwd?)` → Returns `BranchResult` with status: `"none"`, `"branch"`, `"detached"`, or `"error"`
 - `currentGitStatus()` → Returns formatted string with emoji
 
 ### `src/utils/path.ts`
