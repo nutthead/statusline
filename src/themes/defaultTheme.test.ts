@@ -1,19 +1,5 @@
-import { describe, expect, mock, test } from "bun:test";
-
-// Mock ansi-colors before importing the theme
-mock.module("ansi-colors", () => {
-  return {
-    default: {
-      green: (s: string) => s,
-      blue: (s: string) => s,
-      yellow: (s: string) => s,
-      red: (s: string) => s,
-    },
-  };
-});
-
-// Import the theme after mocking
-const { defaultTheme } = await import("./defaultTheme");
+import { describe, expect, test } from "bun:test";
+import { defaultTheme } from "./defaultTheme";
 
 describe("defaultTheme", () => {
   describe("when input is empty or undefined", () => {

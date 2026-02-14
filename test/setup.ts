@@ -12,3 +12,12 @@ mock.module("node:os", () => ({
 mock.module("terminal-size", () => ({
   default: () => ({ columns: 123, rows: 24 }),
 }));
+
+mock.module("ansi-colors", () => ({
+  default: {
+    green: (s: string) => s,
+    blue: (s: string) => s,
+    yellow: (s: string) => s,
+    red: (s: string) => s,
+  },
+}));
