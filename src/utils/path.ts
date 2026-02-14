@@ -6,6 +6,7 @@ const HORIZONTAL_ELLIPSIS = "\u2026";
  * Compresses a path by converting all segments except the last to a single character.
  *
  * @param path - The path to compress
+ * @param separator - The path separator to use (defaults to "/")
  * @returns The compressed path
  *
  * @example compress("/home/username/foo/bar/baz") // "/h/u/f/b/baz"
@@ -13,8 +14,8 @@ const HORIZONTAL_ELLIPSIS = "\u2026";
  * @example compress("~/projects/myapp")           // "~/p/myapp"
  * @example compress("a/b/c/d")                    // "a/b/c/d"
  */
-function compress(path: string): string {
-  const segments = path.split("/");
+function compress(path: string, separator = "/"): string {
+  const segments = path.split(separator);
 
   if (segments.length <= 1) {
     return path;
@@ -30,28 +31,29 @@ function compress(path: string): string {
     return segment[0];
   });
 
-  return compressed.join("/");
+  return compressed.join(separator);
 }
 
 /**
  * Converts a path starting with the home directory to use `~`.
  *
  * @param path - The path to convert
+ * @param separator - The path separator to use (defaults to "/")
  * @returns The path with home directory replaced by `~`, or the original path if it doesn't start with home
  *
  * @example tildify("/home/user/projects/myapp") // "~/projects/myapp"
  * @example tildify("/home/user")                // "~"
  * @example tildify("/etc/nginx")                // "/etc/nginx"
  */
-function tildify(path: string): string {
+function tildify(path: string, separator = "/"): string {
   const home = homedir();
 
   if (path === home) {
     return "~";
   }
 
-  if (path.startsWith(`${home}/`)) {
-    return `~${path.slice(home.length)}`;
+  if (path.startsWith(`${home}${separator}`)) {
+    return `~${separator}${path.slice(home.length + separator.length)}`;
   }
 
   return path;
@@ -65,6 +67,7 @@ function tildify(path: string): string {
  * If the path has 2 or fewer segments, it is returned unchanged.
  *
  * @param path - The path to telescope
+ * @param separator - The path separator to use (defaults to "/")
  * @returns The telescoped path
  *
  * @example telescope("/home/user/projects/myapp") // "~/…/myapp"
@@ -73,9 +76,9 @@ function tildify(path: string): string {
  * @example telescope("a/b/c")                     // "a/…/c"
  * @example telescope("~/foo")                     // "~/foo"
  */
-function telescope(path: string): string {
-  const tildified = tildify(path);
-  const segments = tildified.split("/");
+function telescope(path: string, separator = "/"): string {
+  const tildified = tildify(path, separator);
+  const segments = tildified.split(separator);
 
   if (segments.length <= 2) {
     return tildified;
@@ -86,10 +89,10 @@ function telescope(path: string): string {
 
   // Handle absolute paths: first segment is empty string
   if (first === "" && segments.length > 1) {
-    return `/${segments[1]}/${HORIZONTAL_ELLIPSIS}/${last}`;
+    return `${separator}${segments[1]}${separator}${HORIZONTAL_ELLIPSIS}${separator}${last}`;
   }
 
-  return `${first}/${HORIZONTAL_ELLIPSIS}/${last}`;
+  return `${first}${separator}${HORIZONTAL_ELLIPSIS}${separator}${last}`;
 }
 
 export { compress, tildify, telescope, HORIZONTAL_ELLIPSIS };

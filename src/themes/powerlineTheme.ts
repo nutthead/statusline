@@ -90,8 +90,6 @@ async function renderLine1(status: Status): Promise<string> {
   const modelId = abbreviateModelId(status.model.id);
   const modelText = `🤖 ${modelId} (${status.version})`;
 
-  const sessionText = `📃 ${status.session_id}`;
-
   const projectDir = compress(telescope(status.workspace.project_dir));
   const projectText = `🗂️ ${projectDir}`;
 
@@ -105,6 +103,29 @@ async function renderLine1(status: Status): Promise<string> {
 
   const usedPercentage = status.context_window.used_percentage ?? 0;
 
+  // Calculate total width to determine if we need to telescope sessionText
+  const maxWidth = terminalSize().columns;
+  const fullSessionText = `📃 ${status.session_id}`;
+  const tempSegments: Segment[] = [
+    { text: modelText, bg: BG_MODEL },
+    { text: fullSessionText, bg: BG_SESSION },
+    { text: projectText, bg: BG_PROJECT },
+    { text: branchText, bg: BG_GIT },
+  ];
+  if (usedPercentage > 0) {
+    tempSegments.push({ text: `${usedPercentage}%`, bg: BG_USAGE });
+  }
+  const totalWidth = tempSegments.reduce(
+    (sum, seg) => sum + getDisplayWidth(` ${seg.text} `) + 1,
+    0,
+  );
+
+  // Telescope sessionText if total width exceeds maxWidth
+  const sessionText =
+    totalWidth > maxWidth
+      ? `📃 ${telescope(status.session_id, "-")}`
+      : fullSessionText;
+
   const segments: Segment[] = [
     { text: modelText, bg: BG_MODEL },
     { text: sessionText, bg: BG_SESSION },
@@ -116,7 +137,6 @@ async function renderLine1(status: Status): Promise<string> {
     segments.push({ text: `${usedPercentage}%`, bg: BG_USAGE });
   }
 
-  const maxWidth = terminalSize().columns;
   return layoutSegments(segments, maxWidth);
 }
 
