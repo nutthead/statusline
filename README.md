@@ -6,21 +6,22 @@ Requires [Bun](https://bun.com).
 
 ## Preview
 
-The default theme renders a two-row status line:
+### Default Theme
+
+Two-row layout with model, session, project directory, git status, and context usage:
 
 ```
 🤖 opus-4-5 (2.1.42)      📃 93aba123-d123-4a6b-b1b5-2f3e7d111317       🗂️ ~/a/…/statusline
 🌿 main                                                                                 18%
 ```
 
-- **Row 1** (left to right):
-  - 🤖 Model ID (abbreviated) and Claude Code version
-  - 📃 Session ID
-  - 🗂️ Project directory (compressed and telescoped)
+### Powerline Theme
 
-- **Row 2** (left to right):
-  - 🌿 Git branch name (or 🪾 commit hash if detached, 💾 if not a repo, 💥 on error)
-  - Context window usage percentage
+Single-row powerline-style segments with muted dark backgrounds and arrow separators:
+
+<pre style="background:#111;padding:12px 16px;border-radius:6px;font-size:14px;line-height:1.8;overflow-x:auto"><span style="background:rgb(30,40,80);color:#fff;padding:3px 8px">🤖 opus-4-5 (2.1.42)</span><span style="color:rgb(30,40,80);background:rgb(60,30,70)">&#xE0B0;</span><span style="background:rgb(60,30,70);color:#fff;padding:3px 8px">📃 93aba123-d123-4a6b-b1b5-2f3e7d111317</span><span style="color:rgb(60,30,70);background:rgb(25,65,75)">&#xE0B0;</span><span style="background:rgb(25,65,75);color:#fff;padding:3px 8px">🗂️ ~/…/statusline</span><span style="color:rgb(25,65,75);background:rgb(30,65,40)">&#xE0B0;</span><span style="background:rgb(30,65,40);color:#fff;padding:3px 8px">🌿 main</span><span style="color:rgb(30,65,40);background:rgb(85,70,20)">&#xE0B0;</span><span style="background:rgb(85,70,20);color:#fff;padding:3px 8px">18%</span><span style="color:rgb(85,70,20)">&#xE0B0;</span></pre>
+
+Wraps to multiple lines when segments exceed terminal width. Select with `--theme powerline`.
 
 ## Install
 
