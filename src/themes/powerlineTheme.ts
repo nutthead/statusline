@@ -1,4 +1,4 @@
-import c, { type StyleFunction } from "ansi-colors";
+import chalk from "chalk";
 import terminalSize from "terminal-size";
 import { match } from "ts-pattern";
 import { ZodError } from "zod";
@@ -12,55 +12,40 @@ import { getDisplayWidth } from "../utils/term";
 // Right-pointing solid triangle (filled separator)
 const RPST = "\uE0B0";
 
-type ColorName = "blue" | "magenta" | "cyan" | "green" | "yellow";
+type Rgb = [number, number, number];
 
 interface Segment {
   text: string;
-  fg: "white" | "black";
-  bg: ColorName;
+  bg: Rgb;
 }
 
-const fgColor: Record<ColorName, StyleFunction> = {
-  blue: c.blue,
-  magenta: c.magenta,
-  cyan: c.cyan,
-  green: c.green,
-  yellow: c.yellow,
-};
+// Muted dark background colors for each segment type
+const BG_MODEL: Rgb = [30, 40, 80];
+const BG_SESSION: Rgb = [60, 30, 70];
+const BG_PROJECT: Rgb = [25, 65, 75];
+const BG_GIT: Rgb = [30, 65, 40];
+const BG_USAGE: Rgb = [85, 70, 20];
 
-const bgColor: Record<ColorName, StyleFunction> = {
-  blue: c.bgBlue,
-  magenta: c.bgMagenta,
-  cyan: c.bgCyan,
-  green: c.bgGreen,
-  yellow: c.bgYellow,
-};
-
-/** Apply foreground and background color to text. */
-function styleContent(
-  text: string,
-  fg: "white" | "black",
-  bg: ColorName,
-): string {
-  const fgFn = fg === "white" ? c.white : c.black;
-  return bgColor[bg](fgFn(text));
+/** Apply white foreground and RGB background color to text. */
+function styleContent(text: string, bg: Rgb): string {
+  return chalk.bgRgb(...bg)(chalk.white(text));
 }
 
 /** Render a separator arrow transitioning from one bg color to another (or to default). */
-function styleSep(from: ColorName, to?: ColorName): string {
-  const colored = fgColor[from](RPST);
-  return to ? bgColor[to](colored) : colored;
+function styleSep(from: Rgb, to?: Rgb): string {
+  const arrow = chalk.rgb(...from)(RPST);
+  return to ? chalk.bgRgb(...to)(arrow) : arrow;
 }
 
 /** Render an array of segments into a single powerline bar. */
 function renderBar(parts: Segment[]): string {
   let result = "";
-  let prevBg: ColorName | undefined;
+  let prevBg: Rgb | undefined;
   for (const seg of parts) {
     if (prevBg) {
       result += styleSep(prevBg, seg.bg);
     }
-    result += styleContent(` ${seg.text} `, seg.fg, seg.bg);
+    result += styleContent(` ${seg.text} `, seg.bg);
     prevBg = seg.bg;
   }
   if (prevBg) {
@@ -121,14 +106,14 @@ async function renderLine1(status: Status): Promise<string> {
   const usedPercentage = status.context_window.used_percentage ?? 0;
 
   const segments: Segment[] = [
-    { text: modelText, fg: "black", bg: "blue" },
-    { text: sessionText, fg: "black", bg: "magenta" },
-    { text: projectText, fg: "black", bg: "cyan" },
-    { text: branchText, fg: "black", bg: "green" },
+    { text: modelText, bg: BG_MODEL },
+    { text: sessionText, bg: BG_SESSION },
+    { text: projectText, bg: BG_PROJECT },
+    { text: branchText, bg: BG_GIT },
   ];
 
   if (usedPercentage > 0) {
-    segments.push({ text: `${usedPercentage}%`, fg: "black", bg: "yellow" });
+    segments.push({ text: `${usedPercentage}%`, bg: BG_USAGE });
   }
 
   const maxWidth = terminalSize().columns;

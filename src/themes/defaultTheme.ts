@@ -1,4 +1,4 @@
-import c from "ansi-colors";
+import chalk from "chalk";
 import terminalSize from "terminal-size";
 import { match } from "ts-pattern";
 import { ZodError } from "zod";
@@ -15,13 +15,13 @@ function colorizeUsageStatus(usedPercentage: number) {
   if (usedPercentage === 0) {
     return "";
   } else if (usedPercentage <= 50) {
-    return c.green(`${usedPercentage}%`);
+    return chalk.green(`${usedPercentage}%`);
   } else if (usedPercentage <= 75) {
-    return c.blue(`${usedPercentage}%`);
+    return chalk.blue(`${usedPercentage}%`);
   } else if (usedPercentage <= 87.5) {
-    return c.yellow(`${usedPercentage}%`);
+    return chalk.yellow(`${usedPercentage}%`);
   } else {
-    return c.red(`${usedPercentage}%`);
+    return chalk.red(`${usedPercentage}%`);
   }
 }
 

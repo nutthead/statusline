@@ -1,9 +1,13 @@
 import { configure } from "@logtape/logtape";
+import chalk from "chalk";
 import meow from "meow";
 import { log, logtapeConfig } from "./src/logging";
 import { loadTheme } from "./src/theme/loadTheme";
 import { defaultTheme } from "./src/themes/defaultTheme";
 import { powerlineTheme } from "./src/themes/powerlineTheme";
+
+// Force truecolor output — chalk auto-detection fails when invoked via piped stdin
+chalk.level = 3;
 
 await configure(logtapeConfig);
 
